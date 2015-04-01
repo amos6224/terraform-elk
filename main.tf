@@ -4,10 +4,56 @@ provider "aws" {
     region = "${var.aws_region}"
 }
 
+resource "aws_vpc" "supersearch" {
+    cidr_block = "172.33.0.0/16"
+    instance_tenancy = "default"
+    enable_dns_hostnames = true
+    enable_dns_support  = true
+
+    tags {
+        Name = "supersearch vpc"
+    }
+}
+
+resource "aws_internet_gateway" "supersearch" {
+    vpc_id = "${aws_vpc.supersearch.id}"
+
+    tags {
+        Name = "supersearch gateway"
+    }
+}
+
+resource "aws_route_table" "supersearch" {
+    vpc_id = "${aws_vpc.supersearch.id}"
+    route {
+        cidr_block = "172.33.0.0/16"
+        gateway_id = "${aws_internet_gateway.supersearch.id}"
+    }
+
+    tags {
+        Name = "supersearch route table"
+    }
+}
+
+# create 2 for multi az
+resource "aws_subnet" "supersearch" {
+    vpc_id = "${aws_vpc.supersearch.id}"
+    cidr_block = "172.33.1.0/24"
+    availability_zone = "ap-southeast-2b"
+    tags {
+        Name = "supersearch subnet b"
+    }
+}
+
+resource "aws_route_table_association" "supersearch" {
+    subnet_id = "${aws_subnet.supersearch.id}"
+    route_table_id = "${aws_route_table.supersearch.id}"
+}
+
 # the instances over SSH and elastic ports
 resource "aws_security_group" "elastic" {
     name = "elasticsearch"
-    description = "Elasticsearch ports with ssh"
+    description = "Supersearch ES ports with ssh"
 
     # SSH access from anywhere
     ingress {
@@ -17,21 +63,22 @@ resource "aws_security_group" "elastic" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+    vpc_id = "${aws_vpc.supersearch.id}"
 
+    # lock down
     ingress {
         from_port = 9200
         to_port = 9399
         protocol = "tcp"
-        #cidr_blocks = ["115.186.199.54/32"]
         cidr_blocks = ["0.0.0.0/0"]
     }
 
     tags {
-      Name = "orca-elasticsearch-private-vpc"
+      Name = "supersearch"
     }
 
 }
+
 
 #resource "aws_elb" "elastic" {
 #  name = "elastic-elb"
@@ -61,13 +108,14 @@ resource "aws_instance" "elastic" {
     key_file = "${var.key_path}"
   }
 
-  instance_type = "t2.medium"
+  instance_type = "${var.aws_instance_type}"
 
   # Lookup the correct AMI based on the region we specified
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet_id = "${lookup(var.aws_subnet, var.aws_region)}"
+  subnet_id = "${aws_subnet.supersearch.id}"
+
   iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "false"
+  associate_public_ip_address = "true"
 
   key_name = "${var.key_name}"
 
@@ -76,7 +124,7 @@ resource "aws_instance" "elastic" {
   security_groups = ["${aws_security_group.elastic.id}"]
 
   tags {
-    Name = "talentsearch-es-private-vpc"
+    Name = "supersearch-node"
     es_env = "${var.es_environment}"
   }
 

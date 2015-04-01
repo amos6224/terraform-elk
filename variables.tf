@@ -20,17 +20,22 @@ variable "aws_security_group" {
 	default = "elasticsearch"
 }
 
+variable "aws_instance_type" {
+  description = "EC2 instance type."
+	default = "t2.medium"
+}
+
 variable "es_cluster" {
 	description = "Elastic cluster name"
-	default = "talentsearch"
+	default = "elasticsearch"
 }
 
 variable "es_environment" {
 	description = "Elastic environment tag for auto discovery"
-	default = "talentsearch"
+	default = "elasticsearch"
 }
 
-# Ubuntu Precise 14.04 LTS (x64)
+# Ubuntu Precise 14.04 LTS (x64) built by packer
 variable "aws_amis" {
   default = {
 		ap-southeast-2 = "ami-2ffb8815"
