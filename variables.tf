@@ -1,5 +1,5 @@
-variable "access_key" {}
-variable "secret_key" {}
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
 
 variable "key_name" {
   description = "Name of the SSH keypair to use in AWS."
@@ -25,6 +25,7 @@ variable "aws_instance_type" {
 	default = "t2.medium"
 }
 
+# if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
 	description = "Elastic cluster name"
 	default = "elasticsearch"

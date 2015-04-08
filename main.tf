@@ -1,6 +1,6 @@
 provider "aws" {
-    access_key = "${var.access_key}"
-    secret_key = "${var.secret_key}"
+    access_key = "${var.aws_access_key}"
+    secret_key = "${var.aws_secret_key}"
     region = "${var.aws_region}"
 }
 
@@ -64,7 +64,7 @@ resource "aws_security_group" "elastic" {
     }
 
     # vpc_id = "${aws_vpc.supersearch.id}"
-    vpc_id = "vpc-f753bd92"
+    vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
 
     # lock down
     ingress {
