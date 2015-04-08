@@ -4,7 +4,7 @@ provider "aws" {
     region = "${var.aws_region}"
 }
 
-resource "aws_vpc" "supersearch" {
+/*resource "aws_vpc" "supersearch" {
     cidr_block = "172.33.0.0/16"
     instance_tenancy = "default"
     enable_dns_hostnames = true
@@ -48,7 +48,7 @@ resource "aws_subnet" "supersearch" {
 resource "aws_route_table_association" "supersearch" {
     subnet_id = "${aws_subnet.supersearch.id}"
     route_table_id = "${aws_route_table.supersearch.id}"
-}
+}*/
 
 # the instances over SSH and elastic ports
 resource "aws_security_group" "elastic" {
@@ -63,7 +63,8 @@ resource "aws_security_group" "elastic" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    vpc_id = "${aws_vpc.supersearch.id}"
+    # vpc_id = "${aws_vpc.supersearch.id}"
+    vpc_id = "vpc-f753bd92"
 
     # lock down
     ingress {
@@ -100,40 +101,40 @@ resource "aws_security_group" "elastic" {
 
 resource "aws_instance" "elastic" {
 
-  connection {
-    # The default username for our AMI
-    user = "ubuntu"
-
-    # The path to your keyfile
-    key_file = "${var.key_path}"
-  }
-
   instance_type = "${var.aws_instance_type}"
 
   # Lookup the correct AMI based on the region we specified
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet_id = "${aws_subnet.supersearch.id}"
+  # subnet_id = "${aws_subnet.supersearch.id}"
+  subnet_id = "subnet-09c53a6c"
 
   iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "true"
+  associate_public_ip_address = "false"
 
   key_name = "${var.key_name}"
+
+  connection {
+    # The default username for our AMI
+    user = "ubuntu"
+    type = "ssh"
+    host = "${self.private_ip}"
+    # The path to your keyfile
+    key_file = "${var.key_path}"
+  }
 
   # Our Security group to allow HTTP and SSH access
   # other vpc
   security_groups = ["${aws_security_group.elastic.id}"]
 
   tags {
-    Name = "supersearch-node"
+    Name = "supersearch-node-${count.index+1}"
     es_env = "${var.es_environment}"
   }
 
-  # Start elasticsearch (this require public ip)
-  #provisioner "remote-exec" {
-  #  inline = [
-  #       "sudo ES_CLUSTER=${var.es_cluster} ES_ENVIRONMENT=${var.es_environment} ES_GROUP=${var.aws_security_group} AWS_REGION=${var.aws_region} /usr/share/elasticsearch/bin/elasticsearch -Des.config=/etc/elasticsearch/elasticsearch.yml &"
-  #  ]
-  #}
+  # Start elasticsearch
+  provisioner "remote-exec" {
+    inline = [ "sudo ES_ENVIRONMENT=${var.es_environment} ES_CLUSTER=${var.es_cluster} ES_GROUP=${var.aws_security_group} AWS_REGION=${var.aws_region} /etc/init.d/elasticsearch start" ]
+  }
 
   # This will create 2 instances
   count = 2

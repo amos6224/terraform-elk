@@ -36,9 +36,10 @@ variable "es_environment" {
 }
 
 # Ubuntu Precise 14.04 LTS (x64) built by packer
+# See https://github.com/nadnerb/packer-elastic-search
 variable "aws_amis" {
   default = {
-		ap-southeast-2 = "ami-2ffb8815"
+		ap-southeast-2 = "ami-e95123d3"
   }
 }
 
