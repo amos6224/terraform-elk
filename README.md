@@ -5,7 +5,8 @@ This project will create an elasticsearch cluster. It will communicate with it v
 
 ## Requirements
 
-Terraform >= v0.4
+* Terraform >= v0.4
+* An ubuntu AWS AMI with Java and Elasticsearch, see [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
 
 ## Installation
 
@@ -32,7 +33,6 @@ variable "aws_amis" {
 }
 
 ```
-The above AMI needs to have java and elasticsearch installed, you can use this project to create one: [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
 
 Modify the `variables.tf` file, replacing correct values for aws_vpcs for your region like:
 
