@@ -1,7 +1,11 @@
 Elastic Search Cluster on AWS using Terraform
 =============
 
-This project will create an elasticsearch cluster and communicate with it via private ip addresses. This requires will require a VPN to your AWS VPC.
+This project will create an elasticsearch cluster. It will communicate with it via private ip addresses. This requires a VPN to your AWS VPC or alternatively running terraform within your VPC.
+
+## Requirements
+
+Terraform >= v0.4
 
 ## Installation
 
@@ -28,7 +32,7 @@ variable "aws_amis" {
 }
 
 ```
-The above AMI needs to have java installed and elasticsearch installed, you can use this project to create one: [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
+The above AMI needs to have java and elasticsearch installed, you can use this project to create one: [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
 
 Modify the `variables.tf` file, replacing correct values for aws_vpcs for your region like:
 
