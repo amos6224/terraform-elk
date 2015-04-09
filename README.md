@@ -7,6 +7,7 @@ This project will create an elasticsearch cluster. It will communicate with it v
 
 * Terraform >= v0.4
 * An ubuntu AWS AMI with Java and Elasticsearch, see [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
+* Elasticsearch IAM profile called elasticSearchNode with [EC2 permissions](https://github.com/elastic/elasticsearch-cloud-aws#recommended-ec2-permissions)
 
 ## Installation
 
@@ -31,7 +32,6 @@ variable "aws_amis" {
 		ap-southeast-2 = "ami-xxxxxxx"
   }
 }
-
 ```
 
 Modify the `variables.tf` file, replacing correct values for aws_vpcs for your region like:
