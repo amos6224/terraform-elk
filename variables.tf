@@ -36,6 +36,11 @@ variable "es_environment" {
 	default = "elasticsearch"
 }
 
+variable "es_num_nodes" {
+	description = "Elastic nodes"
+	default = "2"
+}
+
 # Ubuntu Precise 14.04 LTS (x64) built by packer
 # See https://github.com/nadnerb/packer-elastic-search
 variable "aws_amis" {
@@ -50,7 +55,7 @@ variable "aws_vpcs" {
 	}
 }
 
-variable "aws_subnet" {
+variable "aws_subnets" {
 	default = {
 		ap-southeast-2 = "subnet-5fc53a3a"
 	}

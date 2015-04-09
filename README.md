@@ -1,17 +1,54 @@
 Elastic Search Cluster on AWS using Terraform
 =============
 
-Install [Terraform](https://www.terraform.io/) and add it to your PATH.
+This project will create an elasticsearch cluster and communicate with it via private ip addresses. This requires will require a VPN to your AWS VPC.
 
-Clone this repo.
+## Installation
 
-Create a configuration file such as `~/.aws/default.tfvars`
+* install [Terraform](https://www.terraform.io/) and add it to your PATH.
+* clone this repo.
+
+## Configuration
+
+Create a configuration file such as `~/.aws/default.tfvars` which includes:
 
 ```
 aws_access_key="<your aws access key>"
 aws_secret_key="<your aws access secret>"
 key_name="<your private key name>"
 ```
+
+Modify the `variables.tf` file, replacing correct values for aws_amis for your region like:
+
+```
+variable "aws_amis" {
+  default = {
+		ap-southeast-2 = "ami-xxxxxxx"
+  }
+}
+
+```
+The above AMI needs to have java installed and elasticsearch installed, you can use this project to create one: [packer-elastic-search](https://github.com/nadnerb/packer-elastic-search)
+
+Modify the `variables.tf` file, replacing correct values for aws_vpcs for your region like:
+
+```
+variable "aws_vpcs" {
+	default = {
+		ap-southeast-2 = "vpc-xxxxxxx"
+	}
+}
+```
+
+These variables can be overriden when running terraform like so:
+
+```
+terraform dosomethingcool -var 'aws_vpcs.ap-southeast-2=foozie'
+```
+
+The variables.tf terraform file can be further modified, for example it defaults to `ap-southeast-2` for the AWS region.
+
+## Using Terraform
 
 Execute the plan to see if everything works as expected.
 
