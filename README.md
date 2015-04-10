@@ -34,12 +34,18 @@ variable "aws_amis" {
 }
 ```
 
-Modify the `variables.tf` file, replacing correct values for aws_vpcs for your region like:
+Modify the `variables.tf` file, replacing correct values for aws_vpcs and aws_subnets for your region like:
 
 ```
 variable "aws_vpcs" {
 	default = {
 		ap-southeast-2 = "vpc-xxxxxxx"
+	}
+}
+
+variable "aws_subnets" {
+	default = {
+		ap-southeast-2 = "subnet-xxxxxxx"
 	}
 }
 ```

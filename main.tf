@@ -40,7 +40,7 @@ resource "aws_instance" "elastic" {
 
   # Lookup the correct AMI based on the region we specified
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet_id = "subnet-09c53a6c"
+  subnet_id = "${lookup(var.aws_subnets, var.aws_region)}"
 
   iam_instance_profile = "elasticSearchNode"
   associate_public_ip_address = "false"
