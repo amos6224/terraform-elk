@@ -57,6 +57,6 @@ variable "aws_vpcs" {
 
 variable "aws_subnets" {
 	default = {
-		ap-southeast-2 = "subnet-5fc53a3a"
+		ap-southeast-2 = "subnet-09c53a6c"
 	}
 }

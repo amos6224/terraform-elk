@@ -24,7 +24,7 @@ aws_secret_key="<your aws access secret>"
 key_name="<your private key name>"
 ```
 
-Modify the `variables.tf` file, replacing correct values for aws_amis for your region like:
+Modify the `variables.tf` file, replacing correct values for `aws_amis` for your region:
 
 ```
 variable "aws_amis" {
@@ -34,7 +34,7 @@ variable "aws_amis" {
 }
 ```
 
-Modify the `variables.tf` file, replacing correct values for aws_vpcs and aws_subnets for your region like:
+Modify the `variables.tf` file, replacing correct values for `aws_vpcs` and `aws_subnets` for your region:
 
 ```
 variable "aws_vpcs" {
@@ -71,3 +71,7 @@ If all looks good, lets build our infrastructure!
 ```
 terraform apply -var-file '~/.aws/default.tfvars'
 ```
+
+## Known issues
+
+I have noticed that in my private vpc I can reference `aws_security_group.elastic.id` but in the default I need to use `aws_security_group.elastic.name`
