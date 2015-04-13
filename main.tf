@@ -33,62 +33,47 @@ resource "aws_security_group" "elastic" {
 
 }
 
-resource "aws_instance" "elastic" {
+resource "aws_subnet" "elastica" {
+    vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+    cidr_block = "${lookup(var.aws_subnet-a-cidr, var.aws_region)}"
 
-  instance_type = "${var.aws_instance_type}"
+    tags {
+        Name = "elastic subnet a"
+    }
+}
 
-  # Lookup the correct AMI based on the region we specified
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet_id = "${lookup(var.aws_subnets, var.aws_region)}"
+resource "aws_route_table" "elastic" {
+    vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+    route {
+        gateway_id = "vgw-7241716f"
+        cidr_block = "10.12.0.0/21"
+    }
+    route {
+        instance_id = "i-41794b7f"
+        cidr_block = "0.0.0.0/0"
+    }
 
-  iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "false"
+    tags {
+        Name = "elastic route table a"
+    }
+}
 
-  # Our Security group to allow HTTP and SSH access
-  # other vpc
-  security_groups = ["${aws_security_group.elastic.id}"]
+resource "aws_route_table_association" "elastic_igw" {
+    subnet_id = "${aws_subnet.elastica.id}"
+    route_table_id = "${aws_route_table.elastic.id}"
+}
 
-  key_name = "${var.key_name}"
+module "elastic" {
+    source = "./elastic"
 
-  # Elasticsearch nodes
-  count = "${var.es_num_nodes}"
-
-  connection {
-    # The default username for our AMI
-    user = "ubuntu"
-    type = "ssh"
-    host = "${self.private_ip}"
-    # The path to your keyfile
-    key_file = "${var.key_path}"
-  }
-
-  tags {
-    # this may not be ideal naming our cattle like this.
-    Name = "elasticsearch-node-${count.index+1}"
-    es_env = "${var.es_environment}"
-  }
-
-  # TODO move to ansible configuration
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Create environment template'",
-      "echo 'export AWS_REGION=${var.aws_region}' >> /tmp/elastic-environment",
-      "echo 'export ES_ENVIRONMENT=${var.es_environment}' >> /tmp/elastic-environment",
-      "echo 'export ES_CLUSTER=${var.es_cluster}' >> /tmp/elastic-environment",
-      "echo 'export ES_GROUP=${var.aws_security_group}' >> /tmp/elastic-environment"
-    ]
-  }
-
-  provisioner "file" {
-      source = "${path.module}/scripts/upstart.conf"
-      destination = "/tmp/upstart.conf"
-  }
-
-  provisioner "remote-exec" {
-    scripts = [
-      "${path.module}/scripts/environment.sh",
-      "${path.module}/scripts/service.sh"
-    ]
-  }
-
+    region = "${var.aws_region}"
+    ami = "${lookup(var.aws_amis, var.aws_region)}"
+    subnet = "${aws_subnet.elastica.id}"
+    instance_type = "${var.aws_instance_type}"
+    security_group = "${aws_security_group.elastic.id}"
+    key_name = "${var.key_name}"
+    key_path = "${var.key_path}"
+    num_nodes = "${var.es_num_nodes}"
+    cluster = "${var.es_cluster}"
+    environment = "${var.es_environment}"
 }

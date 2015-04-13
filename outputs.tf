@@ -1,7 +1,7 @@
 output "instances private dns" {
-  value = "`${join(",", aws_instance.elastic.*.private_dns)}`"
+  value = "`${join(",", module.elastic.private-dns)}`"
 }
 
 output "instances private ips" {
-  value = "`${join(",", aws_instance.elastic.*.private_ip)}`"
+  value = "`${join(",", module.elastic.private-ips)}`"
 }

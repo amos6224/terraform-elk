@@ -74,4 +74,4 @@ terraform apply -var-file '~/.aws/default.tfvars'
 
 ## Known issues
 
-I have noticed that in my private vpc I can reference `aws_security_group.elastic.id` but in the default I need to use `aws_security_group.elastic.name`
+I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`.
