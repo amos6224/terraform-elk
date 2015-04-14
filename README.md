@@ -14,6 +14,10 @@ This project will create an elasticsearch cluster. It will communicate with it v
 * install [Terraform](https://www.terraform.io/) and add it to your PATH.
 * clone this repo.
 
+## Multi AZ
+
+For Multi AZ see this [branch](https://github.com/nadnerb/aws-elasticsearch-cluster/tree/multiaz). Be aware, it does not use elasticsearch shard allocation awareness so there is currently no guarantee of ensuring an index has complete data if an AZ goes down.
+
 ## Configuration
 
 Create a configuration file such as `~/.aws/default.tfvars` which includes:
