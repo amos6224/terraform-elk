@@ -55,7 +55,7 @@ variable "aws_vpcs" {
 	}
 }
 
-variable "aws_subnet_a_cidr" {
+variable "aws_subnet_cidr_a" {
 	default = {
 		ap-southeast-2 = "172.16.55.0/25"
 	}
@@ -67,13 +67,25 @@ variable "aws_virtual_gateway_a" {
   }
 }
 
+variable "aws_virtual_gateway_cidr_a" {
+  default = {
+    ap-southeast-2 = "10.12.0.0/21"
+  }
+}
+
 variable "aws_nat_a" {
   default = {
     ap-southeast-2 = "i-41794b7f"
   }
 }
 
-variable "aws_subnet_b_cidr" {
+variable "aws_nat_cidr_a" {
+  default = {
+    ap-southeast-2 = "0.0.0.0/0"
+  }
+}
+
+variable "aws_subnet_cidr_b" {
 	default = {
 		ap-southeast-2 = "172.16.55.155/25"
 	}
@@ -85,8 +97,20 @@ variable "aws_virtual_gateway_b" {
   }
 }
 
+variable "aws_virtual_gateway_cidr_b" {
+  default = {
+    ap-southeast-2 = "10.12.0.0/21"
+  }
+}
+
 variable "aws_nat_b" {
   default = {
     ap-southeast-2 = "i-9fd348a1"
+  }
+}
+
+variable "aws_nat_cidr_b" {
+  default = {
+    ap-southeast-2 = "0.0.0.0/0"
   }
 }
