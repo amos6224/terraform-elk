@@ -1,3 +1,4 @@
+variable "name" {}
 variable "region" {}
 variable "instance_type" {}
 variable "ami" {}
@@ -39,8 +40,7 @@ resource "aws_instance" "elastic" {
   }
 
   tags {
-    # this may not be ideal naming our cattle like this.
-    Name = "elasticsearch-node-${count.index+1}"
+    Name = "elasticsearch-node-${var.name}${count.index+1}"
     es_env = "${var.environment}"
   }
 
