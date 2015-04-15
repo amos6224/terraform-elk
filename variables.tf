@@ -17,7 +17,7 @@ variable "aws_region" {
 
 variable "aws_security_group" {
   description = "Name of security group to use in AWS."
-	default = "elasticsearch"
+  default = "elasticsearch"
 }
 
 variable "aws_instance_type" {
@@ -50,13 +50,13 @@ variable "aws_amis" {
 }
 
 variable "aws_vpcs" {
-	default = {
-		ap-southeast-2 = "vpc-f753bd92"
-	}
+  default = {
+    ap-southeast-2 = "vpc-08b97a6d"
+  }
 }
 
 variable "aws_subnets" {
 	default = {
-		ap-southeast-2 = "subnet-09c53a6c"
+    ap-southeast-2 = "subnet-39e43a5c"
 	}
 }

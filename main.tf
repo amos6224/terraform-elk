@@ -6,7 +6,7 @@ provider "aws" {
 
 # the instances over SSH and elastic ports
 resource "aws_security_group" "elastic" {
-  name = "elasticsearch"
+  name = "${var.aws_security_group}"
   description = "Elasticsearch ports with ssh"
   vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
 
@@ -42,7 +42,7 @@ resource "aws_instance" "elastic" {
   subnet_id = "${lookup(var.aws_subnets, var.aws_region)}"
 
   iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "false"
+  associate_public_ip_address = "true"
 
   # Our Security group to allow HTTP and SSH access
   # other vpc
@@ -57,7 +57,7 @@ resource "aws_instance" "elastic" {
     # The default username for our AMI
     user = "ubuntu"
     type = "ssh"
-    host = "${self.private_ip}"
+    host = "${self.public_ip}"
     # The path to your keyfile
     key_file = "${var.key_path}"
   }
