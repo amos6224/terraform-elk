@@ -74,4 +74,5 @@ terraform apply -var-file '~/.aws/default.tfvars'
 
 ## Known issues
 
-I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`.
+* Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472))
+* I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`. This may have been resolved in v0.4.x of terraform.
