@@ -3,7 +3,8 @@ variable "region" {}
 variable "instance_type" {}
 variable "ami" {}
 variable "subnet" {}
-variable "security_group" {}
+variable "elastic_group" {}
+variable "security_groups" {}
 variable "key_name" {}
 variable "key_path" {}
 variable "num_nodes" {}
@@ -23,7 +24,7 @@ resource "aws_instance" "elastic" {
 
   # Our Security group to allow HTTP and SSH access
   # other vpc
-  security_groups = ["${var.security_group}"]
+  security_groups = ["${split(",", var.security_groups)}"]
 
   key_name = "${var.key_name}"
 
@@ -51,7 +52,7 @@ resource "aws_instance" "elastic" {
       "echo 'export AWS_REGION=${var.region}' >> /tmp/elastic-environment",
       "echo 'export ES_ENVIRONMENT=${var.environment}' >> /tmp/elastic-environment",
       "echo 'export ES_CLUSTER=${var.cluster}' >> /tmp/elastic-environment",
-      "echo 'export ES_GROUP=${var.security_group}' >> /tmp/elastic-environment"
+      "echo 'export ES_GROUP=${var.elastic_group}' >> /tmp/elastic-environment"
     ]
   }
 

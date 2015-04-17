@@ -38,7 +38,11 @@ variable "es_environment" {
 
 variable "es_num_nodes" {
 	description = "Elastic nodes"
-	default = "2"
+	default = "1"
+}
+
+variable "additional_security_groups" {
+  default = ""
 }
 
 # Ubuntu Precise 14.04 LTS (x64) built by packer
@@ -87,7 +91,7 @@ variable "aws_nat_cidr_a" {
 
 variable "aws_subnet_cidr_b" {
 	default = {
-		ap-southeast-2 = "172.16.55.155/25"
+		ap-southeast-2 = "172.16.55.128/25"
 	}
 }
 

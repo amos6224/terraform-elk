@@ -34,6 +34,7 @@ resource "aws_security_group" "elastic" {
 
 resource "aws_subnet" "elastic_a" {
   vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  availability_zone = "${concat(var.aws_region, "a")}"
   cidr_block = "${lookup(var.aws_subnet_cidr_a, var.aws_region)}"
 
   tags {
@@ -71,7 +72,8 @@ module "elastic_nodes_a" {
     ami = "${lookup(var.aws_amis, var.aws_region)}"
     subnet = "${aws_subnet.elastic_a.id}"
     instance_type = "${var.aws_instance_type}"
-    security_group = "${aws_security_group.elastic.id}"
+    elastic_group = "${aws_security_group.elastic.id}"
+    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
     key_name = "${var.key_name}"
     key_path = "${var.key_path}"
     num_nodes = "${var.es_num_nodes}"
@@ -81,6 +83,7 @@ module "elastic_nodes_a" {
 
 resource "aws_subnet" "elastic_b" {
   vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  availability_zone = "${concat(var.aws_region, "b")}"
   cidr_block = "${lookup(var.aws_subnet_cidr_b, var.aws_region)}"
 
   tags {
@@ -118,7 +121,8 @@ module "elastic_nodes_b" {
     ami = "${lookup(var.aws_amis, var.aws_region)}"
     subnet = "${aws_subnet.elastic_b.id}"
     instance_type = "${var.aws_instance_type}"
-    security_group = "${aws_security_group.elastic.id}"
+    elastic_group = "${aws_security_group.elastic.id}"
+    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
     key_name = "${var.key_name}"
     key_path = "${var.key_path}"
     num_nodes = "${var.es_num_nodes}"

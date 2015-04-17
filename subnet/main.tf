@@ -32,7 +32,7 @@ resource "aws_route_table" "elastic" {
   }
 }
 
-resource "aws_route_table_association" "elastic_b" {
+resource "aws_route_table_association" "elastic" {
   subnet_id = "${aws_subnet.elastic.id}"
   route_table_id = "${aws_route_table.elastic.id}"
 }
