@@ -72,6 +72,14 @@ If all looks good, lets build our infrastructure!
 terraform apply -var-file '~/.aws/default.tfvars'
 ```
 
+### Multiple security groups
+
+A security group is created using terraform that opens up Elasticsearch and ssh ports. We can also add extra pre-existing security groups to our Elasticsearch instances like so:
+
+```
+terraform destroy -var-file '~/.aws/default.tfvars' -var 'additional_security_groups=sg-xxxx, sg-yyyy'
+```
+
 ## Known issues
 
 * Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472))
