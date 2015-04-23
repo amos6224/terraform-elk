@@ -30,65 +30,102 @@ resource "aws_security_group" "elastic" {
   tags {
     Name = "elasticsearch security group"
   }
-
 }
 
-resource "aws_instance" "elastic" {
+resource "aws_subnet" "elastic_a" {
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  availability_zone = "${concat(var.aws_region, "a")}"
+  cidr_block = "${lookup(var.aws_subnet_cidr_a, var.aws_region)}"
 
-  instance_type = "${var.aws_instance_type}"
+  tags {
+    Name = "elastic subnet a"
+  }
+}
 
-  # Lookup the correct AMI based on the region we specified
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet_id = "${lookup(var.aws_subnets, var.aws_region)}"
+resource "aws_route_table" "elastic_a" {
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
 
-  iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "false"
-
-  # Our Security group to allow HTTP and SSH access
-  # other vpc
-  security_groups = ["${aws_security_group.elastic.id}"]
-
-  key_name = "${var.key_name}"
-
-  # Elasticsearch nodes
-  count = "${var.es_num_nodes}"
-
-  connection {
-    # The default username for our AMI
-    user = "ubuntu"
-    type = "ssh"
-    host = "${self.private_ip}"
-    # The path to your keyfile
-    key_file = "${var.key_path}"
+  route {
+    gateway_id = "${lookup(var.aws_virtual_gateway_a, var.aws_region)}"
+    cidr_block = "${lookup(var.aws_virtual_gateway_cidr_a, var.aws_region)}"
+  }
+  route {
+    instance_id = "${lookup(var.aws_nat_a, var.aws_region)}"
+    cidr_block = "${lookup(var.aws_nat_cidr_a, var.aws_region)}"
   }
 
   tags {
-    # this may not be ideal naming our cattle like this.
-    Name = "elasticsearch-node-${count.index+1}"
-    es_env = "${var.es_environment}"
+    Name = "elastic route table a"
+  }
+}
+
+resource "aws_route_table_association" "elastic_a" {
+  subnet_id = "${aws_subnet.elastic_a.id}"
+  route_table_id = "${aws_route_table.elastic_a.id}"
+}
+
+module "elastic_nodes_a" {
+    source = "./elastic"
+
+    name = "a"
+    region = "${var.aws_region}"
+    ami = "${lookup(var.aws_amis, var.aws_region)}"
+    subnet = "${aws_subnet.elastic_a.id}"
+    instance_type = "${var.aws_instance_type}"
+    elastic_group = "${aws_security_group.elastic.id}"
+    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+    key_name = "${var.key_name}"
+    key_path = "${var.key_path}"
+    num_nodes = "${var.es_num_nodes_a}"
+    cluster = "${var.es_cluster}"
+    environment = "${var.es_environment}"
+}
+
+resource "aws_subnet" "elastic_b" {
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  availability_zone = "${concat(var.aws_region, "b")}"
+  cidr_block = "${lookup(var.aws_subnet_cidr_b, var.aws_region)}"
+
+  tags {
+    Name = "elastic subnet b"
+  }
+}
+
+resource "aws_route_table" "elastic_b" {
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  route {
+    gateway_id = "${lookup(var.aws_virtual_gateway_b, var.aws_region)}"
+    cidr_block = "${lookup(var.aws_virtual_gateway_cidr_b, var.aws_region)}"
+  }
+  route {
+    instance_id = "${lookup(var.aws_nat_b, var.aws_region)}"
+    cidr_block = "${lookup(var.aws_nat_cidr_b, var.aws_region)}"
   }
 
-  # TODO move to ansible configuration
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Create environment template'",
-      "echo 'export AWS_REGION=${var.aws_region}' >> /tmp/elastic-environment",
-      "echo 'export ES_ENVIRONMENT=${var.es_environment}' >> /tmp/elastic-environment",
-      "echo 'export ES_CLUSTER=${var.es_cluster}' >> /tmp/elastic-environment",
-      "echo 'export ES_GROUP=${var.aws_security_group}' >> /tmp/elastic-environment"
-    ]
+  tags {
+    Name = "elastic route table b"
   }
+}
 
-  provisioner "file" {
-      source = "${path.module}/scripts/upstart.conf"
-      destination = "/tmp/upstart.conf"
-  }
+resource "aws_route_table_association" "elastic_b" {
+  subnet_id = "${aws_subnet.elastic_b.id}"
+  route_table_id = "${aws_route_table.elastic_b.id}"
+}
 
-  provisioner "remote-exec" {
-    scripts = [
-      "${path.module}/scripts/environment.sh",
-      "${path.module}/scripts/service.sh"
-    ]
-  }
+module "elastic_nodes_b" {
+    source = "./elastic"
 
+    name = "b"
+    region = "${var.aws_region}"
+    ami = "${lookup(var.aws_amis, var.aws_region)}"
+    subnet = "${aws_subnet.elastic_b.id}"
+    instance_type = "${var.aws_instance_type}"
+    elastic_group = "${aws_security_group.elastic.id}"
+    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+    key_name = "${var.key_name}"
+    key_path = "${var.key_path}"
+    num_nodes = "${var.es_num_nodes_b}"
+    cluster = "${var.es_cluster}"
+    environment = "${var.es_environment}"
 }
