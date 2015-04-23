@@ -76,7 +76,7 @@ module "elastic_nodes_a" {
     security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
     key_name = "${var.key_name}"
     key_path = "${var.key_path}"
-    num_nodes = "${var.es_num_nodes}"
+    num_nodes = "${var.es_num_nodes_a}"
     cluster = "${var.es_cluster}"
     environment = "${var.es_environment}"
 }
@@ -125,7 +125,7 @@ module "elastic_nodes_b" {
     security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
     key_name = "${var.key_name}"
     key_path = "${var.key_path}"
-    num_nodes = "${var.es_num_nodes}"
+    num_nodes = "${var.es_num_nodes_b}"
     cluster = "${var.es_cluster}"
     environment = "${var.es_environment}"
 }

@@ -36,8 +36,13 @@ variable "es_environment" {
 	default = "elasticsearch"
 }
 
-variable "es_num_nodes" {
-	description = "Elastic nodes"
+variable "es_num_nodes_a" {
+	description = "Elastic nodes in a"
+	default = "1"
+}
+
+variable "es_num_nodes_b" {
+	description = "Elastic nodes in b"
 	default = "1"
 }
 
