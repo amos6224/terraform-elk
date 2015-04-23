@@ -1,7 +1,7 @@
 Elastic Search Cluster on AWS using Terraform
 =============
 
-This project will create an elasticsearch cluster. It will communicate with it via private ip addresses. This requires a VPN to your AWS VPC or alternatively running terraform within your VPC.
+This project will create an elasticsearch cluster in AWS using multiple availability zones. It will communicate with it via private ip addresses. This requires a VPN to your AWS VPC or alternatively running terraform within your VPC.
 
 ## Requirements
 
@@ -82,5 +82,5 @@ terraform destroy -var-file '~/.aws/default.tfvars' -var 'additional_security_gr
 
 ## Known issues
 
-* Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472))
+* Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472)). I am currently not using the subnet module which just means I have to destroy the environment twice.
 * I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`. This may have been resolved in v0.4.x of terraform.
