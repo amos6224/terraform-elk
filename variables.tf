@@ -1,6 +1,9 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 
+###################################################################
+# AWS configuration below
+###################################################################
 variable "key_name" {
   description = "Name of the SSH keypair to use in AWS."
 	default = "elastic"
@@ -25,6 +28,9 @@ variable "aws_instance_type" {
 	default = "t2.medium"
 }
 
+###################################################################
+# Elasticsearch configuration below
+###################################################################
 # if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
 	description = "Elastic cluster name"
@@ -36,16 +42,20 @@ variable "es_environment" {
 	default = "elasticsearch"
 }
 
+# number of nodes in zone a
 variable "es_num_nodes_a" {
 	description = "Elastic nodes in a"
 	default = "1"
 }
 
+# number of nodes in zone b
 variable "es_num_nodes_b" {
 	description = "Elastic nodes in b"
 	default = "1"
 }
 
+# the ability to add additional existing security groups. In our case
+# we have consul running as agents on the box
 variable "additional_security_groups" {
   default = ""
 }
@@ -64,6 +74,9 @@ variable "aws_vpcs" {
 	}
 }
 
+###################################################################
+# Subnet configuration below
+###################################################################
 variable "aws_subnet_cidr_a" {
 	default = {
 		ap-southeast-2 = "172.16.55.0/25"
