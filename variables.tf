@@ -136,3 +136,12 @@ variable "aws_nat_cidr_b" {
     ap-southeast-2 = "0.0.0.0/0"
   }
 }
+
+###################################################################
+# Logstash configuration below
+###################################################################
+variable "aws_logstash_amis" {
+	default = {
+		ap-southeast-2 = "ami-b9007c83"
+	}
+}

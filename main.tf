@@ -64,6 +64,7 @@ resource "aws_route_table_association" "elastic_a" {
   route_table_id = "${aws_route_table.elastic_a.id}"
 }
 
+# elastic instances subnet a
 module "elastic_nodes_a" {
     source = "./elastic"
 
@@ -113,6 +114,7 @@ resource "aws_route_table_association" "elastic_b" {
   route_table_id = "${aws_route_table.elastic_b.id}"
 }
 
+# elastic instances subnet a
 module "elastic_nodes_b" {
     source = "./elastic"
 
@@ -128,4 +130,52 @@ module "elastic_nodes_b" {
     num_nodes = "${var.es_num_nodes_b}"
     cluster = "${var.es_cluster}"
     environment = "${var.es_environment}"
+}
+
+# the instances over SSH and logstash ports
+resource "aws_security_group" "logstash" {
+  name = "logstash"
+  description = "Logstash ports with ssh"
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  # SSH access from anywhere
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 3333
+    to_port = 3333
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 9292
+    to_port = 9292
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "logstash security group"
+  }
+}
+
+# logstash instances
+module "logstash_nodes" {
+    source = "./logstash"
+
+    name = "a"
+    region = "${var.aws_region}"
+    ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
+    subnet = "${aws_subnet.elastic_a.id}"
+    instance_type = "${var.aws_instance_type}"
+    security_groups = "${concat(aws_security_group.logstash.id, ",", var.additional_security_groups)}"
+    key_name = "${var.key_name}"
+    key_path = "${var.key_path}"
+    num_nodes = 1
 }
