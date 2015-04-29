@@ -37,7 +37,7 @@ resource "aws_instance" "logstash" {
   }
 
   tags {
-    Name = "logstash-node-${var.name}${count.index+1}"
+    Name = "${var.name}_node-${count.index+1}"
     consul = "agent"
   }
 

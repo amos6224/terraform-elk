@@ -169,7 +169,7 @@ resource "aws_security_group" "logstash" {
 module "logstash_nodes" {
     source = "./logstash"
 
-    name = "a"
+    name = "logstash"
     region = "${var.aws_region}"
     ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
     subnet = "${aws_subnet.elastic_a.id}"
@@ -192,4 +192,46 @@ resource "aws_route53_record" "logs" {
    type = "A"
    ttl = "30"
    records = ["${join(",", module.logstash_nodes.private-ips)}"]
+}
+
+# the instances over SSH and logstash ports
+resource "aws_security_group" "kibana" {
+  name = "kibana"
+  description = "Kibana and nginx ports with ssh"
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  # SSH access from anywhere
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "kibana security group"
+  }
+}
+
+# Kibana instances
+module "kibana_nodes" {
+  # update module
+  source = "./logstash"
+
+  name = "kibana"
+  region = "${var.aws_region}"
+  ami = "${lookup(var.aws_kibana_amis, var.aws_region)}"
+  subnet = "${aws_subnet.elastic_a.id}"
+  instance_type = "${var.aws_instance_type}"
+  security_groups = "${concat(aws_security_group.kibana.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  num_nodes = 1
 }

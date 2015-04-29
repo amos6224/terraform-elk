@@ -146,3 +146,13 @@ variable "aws_logstash_amis" {
 		ap-southeast-2 = "ami-b9007c83"
 	}
 }
+
+
+###################################################################
+# Kibana configuration below
+###################################################################
+variable "aws_kibana_amis" {
+	default = {
+		ap-southeast-2 = "ami-c9522ef3"
+	}
+}
