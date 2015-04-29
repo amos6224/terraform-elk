@@ -38,7 +38,7 @@ resource "aws_subnet" "elastic_a" {
   cidr_block = "${lookup(var.aws_subnet_cidr_a, var.aws_region)}"
 
   tags {
-    Name = "elastic subnet a"
+    Name = "SearchA"
   }
 }
 
@@ -88,7 +88,7 @@ resource "aws_subnet" "elastic_b" {
   cidr_block = "${lookup(var.aws_subnet_cidr_b, var.aws_region)}"
 
   tags {
-    Name = "elastic subnet b"
+    Name = "SearchB"
   }
 }
 
@@ -178,4 +178,18 @@ module "logstash_nodes" {
     key_name = "${var.key_name}"
     key_path = "${var.key_path}"
     num_nodes = 1
+}
+
+resource "aws_route53_zone" "search" {
+  name = "${var.domain_name}"
+}
+
+# create hosted zone
+# this will become private
+resource "aws_route53_record" "logs" {
+   zone_id = "${aws_route53_zone.search.zone_id}"
+   name = "logstash"
+   type = "A"
+   ttl = "30"
+   records = ["${join(",", module.logstash_nodes.private-ips)}"]
 }

@@ -41,9 +41,4 @@ resource "aws_instance" "logstash" {
     consul = "agent"
   }
 
-  provisioner "file" {
-      source = "${path.module}/scripts/upstart.conf"
-      destination = "/tmp/upstart.conf"
-  }
-
 }
