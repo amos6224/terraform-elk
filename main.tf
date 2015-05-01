@@ -180,14 +180,15 @@ module "logstash_nodes" {
     num_nodes = 1
 }
 
-resource "aws_route53_zone" "search" {
-  name = "${var.domain_name}"
-}
+#resource "aws_route53_zone" "search" {
+#  name = "${var.domain_name}"
+#}
 
 # create hosted zone
-# this will become private
-resource "aws_route53_record" "logs" {
-   zone_id = "${aws_route53_zone.search.zone_id}"
+# this should be private private
+# zone_id = "${aws_route53_zone.search.zone_id}"
+resource "aws_route53_record" "logstash" {
+   zone_id = "${var.hosted_zone_id}"
    name = "logstash"
    type = "A"
    ttl = "30"

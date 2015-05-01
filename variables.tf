@@ -1,6 +1,7 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-variable "domain_name" {}
+#variable "domain_name" {}
+variable "hosted_zone_id" {}
 
 ###################################################################
 # AWS configuration below

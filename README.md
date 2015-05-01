@@ -22,7 +22,10 @@ Create a configuration file such as `~/.aws/default.tfvars` which includes:
 aws_access_key="<your aws access key>"
 aws_secret_key="<your aws access secret>"
 key_name="<your private key name>"
+hosted_zone_id="<your private private hosted zone>"
 ```
+
+Note above the private hosted zone id is currently required as terraform cannot create private hosted zones. Logstash is only accessible internally this is an issue when creating certificates using dns.
 
 Modify the `variables.tf` file, replacing correct values for `aws_amis` for your region:
 
@@ -76,5 +79,6 @@ terraform destroy -var-file '~/.aws/default.tfvars' -var 'additional_security_gr
 
 ## Known issues
 
+* Private hosted zone [issue](https://github.com/hashicorp/terraform/issues/1503)
 * Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472)). I am currently not using the subnet module which just means I have to destroy the environment twice.
 * I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`. This may have been resolved in v0.4.x of terraform.
