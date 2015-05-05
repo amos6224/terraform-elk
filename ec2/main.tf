@@ -8,7 +8,8 @@ variable "key_name" {}
 variable "key_path" {}
 variable "num_nodes" {}
 
-resource "aws_instance" "logstash" {
+# needs to be renamed
+resource "aws_instance" "ec2" {
 
   instance_type = "${var.instance_type}"
 

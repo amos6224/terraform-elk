@@ -167,7 +167,7 @@ resource "aws_security_group" "logstash" {
 
 # logstash instances
 module "logstash_nodes" {
-    source = "./logstash"
+    source = "./ec2"
 
     name = "logstash"
     region = "${var.aws_region}"
@@ -223,14 +223,13 @@ resource "aws_security_group" "kibana" {
 
 # Kibana instances
 module "kibana_nodes" {
-  # update module
-  source = "./logstash"
+  source = "./ec2"
 
   name = "kibana"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_kibana_amis, var.aws_region)}"
   subnet = "${aws_subnet.elastic_a.id}"
-  instance_type = "${var.aws_instance_type}"
+  instance_type = "${var.aws_kibana_instance_type}"
   security_groups = "${concat(aws_security_group.kibana.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"

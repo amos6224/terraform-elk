@@ -157,3 +157,7 @@ variable "aws_kibana_amis" {
 		ap-southeast-2 = "ami-c9522ef3"
 	}
 }
+
+variable "aws_kibana_instance_type" {
+	default  = "t2.small"
+}
