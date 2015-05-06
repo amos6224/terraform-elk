@@ -160,6 +160,14 @@ resource "aws_security_group" "logstash" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Lumberjack
+  ingress {
+    from_port = 5000
+    to_port = 5000
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags {
     Name = "logstash security group"
   }

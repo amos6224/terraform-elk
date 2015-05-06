@@ -22,8 +22,7 @@ resource "aws_instance" "elastic" {
   iam_instance_profile = "elasticSearchNode"
   associate_public_ip_address = "false"
 
-  # Our Security group to allow HTTP and SSH access
-  # other vpc
+  # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
 
   key_name = "${var.key_name}"

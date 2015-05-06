@@ -1,5 +1,6 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+# private hosted zone https://github.com/hashicorp/terraform/issues/1503
 #variable "domain_name" {}
 variable "hosted_zone_id" {}
 
