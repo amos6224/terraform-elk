@@ -4,6 +4,11 @@ variable "aws_secret_key" {}
 #variable "domain_name" {}
 variable "hosted_zone_id" {}
 
+# group our resources
+variable "stream_tag" {
+  default = "default"
+}
+
 ###################################################################
 # AWS configuration below
 ###################################################################

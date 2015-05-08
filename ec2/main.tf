@@ -7,6 +7,7 @@ variable "security_groups" {}
 variable "key_name" {}
 variable "key_path" {}
 variable "num_nodes" {}
+variable "stream_tag" {}
 
 # needs to be renamed
 resource "aws_instance" "ec2" {
@@ -19,8 +20,7 @@ resource "aws_instance" "ec2" {
 
   associate_public_ip_address = "false"
 
-  # Our Security group to allow HTTP and SSH access
-  # other vpc
+  # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
 
   key_name = "${var.key_name}"
@@ -39,6 +39,7 @@ resource "aws_instance" "ec2" {
 
   tags {
     Name = "${var.name}_node-${count.index+1}"
+    Stream = "${var.stream_tag}"
     consul = "agent"
   }
 

@@ -29,6 +29,7 @@ resource "aws_security_group" "elastic" {
 
   tags {
     Name = "elasticsearch security group"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -39,6 +40,7 @@ resource "aws_subnet" "elastic_a" {
 
   tags {
     Name = "SearchA"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -56,6 +58,7 @@ resource "aws_route_table" "elastic_a" {
 
   tags {
     Name = "elastic route table a"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -66,20 +69,21 @@ resource "aws_route_table_association" "elastic_a" {
 
 # elastic instances subnet a
 module "elastic_nodes_a" {
-    source = "./elastic"
+  source = "./elastic"
 
-    name = "a"
-    region = "${var.aws_region}"
-    ami = "${lookup(var.aws_amis, var.aws_region)}"
-    subnet = "${aws_subnet.elastic_a.id}"
-    instance_type = "${var.aws_instance_type}"
-    elastic_group = "${aws_security_group.elastic.id}"
-    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
-    key_name = "${var.key_name}"
-    key_path = "${var.key_path}"
-    num_nodes = "${var.es_num_nodes_a}"
-    cluster = "${var.es_cluster}"
-    environment = "${var.es_environment}"
+  name = "a"
+  region = "${var.aws_region}"
+  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  subnet = "${aws_subnet.elastic_a.id}"
+  instance_type = "${var.aws_instance_type}"
+  elastic_group = "${aws_security_group.elastic.id}"
+  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  num_nodes = "${var.es_num_nodes_a}"
+  cluster = "${var.es_cluster}"
+  environment = "${var.es_environment}"
+  stream_tag = "${var.stream_tag}"
 }
 
 resource "aws_subnet" "elastic_b" {
@@ -89,6 +93,7 @@ resource "aws_subnet" "elastic_b" {
 
   tags {
     Name = "SearchB"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -106,6 +111,7 @@ resource "aws_route_table" "elastic_b" {
 
   tags {
     Name = "elastic route table b"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -116,20 +122,21 @@ resource "aws_route_table_association" "elastic_b" {
 
 # elastic instances subnet a
 module "elastic_nodes_b" {
-    source = "./elastic"
+  source = "./elastic"
 
-    name = "b"
-    region = "${var.aws_region}"
-    ami = "${lookup(var.aws_amis, var.aws_region)}"
-    subnet = "${aws_subnet.elastic_b.id}"
-    instance_type = "${var.aws_instance_type}"
-    elastic_group = "${aws_security_group.elastic.id}"
-    security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
-    key_name = "${var.key_name}"
-    key_path = "${var.key_path}"
-    num_nodes = "${var.es_num_nodes_b}"
-    cluster = "${var.es_cluster}"
-    environment = "${var.es_environment}"
+  name = "b"
+  region = "${var.aws_region}"
+  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  subnet = "${aws_subnet.elastic_b.id}"
+  instance_type = "${var.aws_instance_type}"
+  elastic_group = "${aws_security_group.elastic.id}"
+  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  num_nodes = "${var.es_num_nodes_b}"
+  cluster = "${var.es_cluster}"
+  environment = "${var.es_environment}"
+  stream_tag = "${var.stream_tag}"
 }
 
 # the instances over SSH and logstash ports
@@ -170,22 +177,24 @@ resource "aws_security_group" "logstash" {
 
   tags {
     Name = "logstash security group"
+    Stream = "${var.stream_tag}"
   }
 }
 
 # logstash instances
 module "logstash_nodes" {
-    source = "./ec2"
+  source = "./ec2"
 
-    name = "logstash"
-    region = "${var.aws_region}"
-    ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
-    subnet = "${aws_subnet.elastic_a.id}"
-    instance_type = "${var.aws_instance_type}"
-    security_groups = "${concat(aws_security_group.logstash.id, ",", var.additional_security_groups)}"
-    key_name = "${var.key_name}"
-    key_path = "${var.key_path}"
-    num_nodes = 1
+  name = "logstash"
+  region = "${var.aws_region}"
+  ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
+  subnet = "${aws_subnet.elastic_a.id}"
+  instance_type = "${var.aws_instance_type}"
+  security_groups = "${concat(aws_security_group.logstash.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  num_nodes = 1
+  stream_tag = "${var.stream_tag}"
 }
 
 #resource "aws_route53_zone" "search" {
@@ -226,6 +235,7 @@ resource "aws_security_group" "kibana" {
 
   tags {
     Name = "kibana security group"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -242,4 +252,5 @@ module "kibana_nodes" {
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
   num_nodes = 1
+  stream_tag = "${var.stream_tag}"
 }

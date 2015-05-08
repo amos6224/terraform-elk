@@ -5,6 +5,7 @@ variable "gateway_id" {}
 variable "gateway_cidr_block" {}
 variable "instance_id" {}
 variable "instance_cidr_block" {}
+variable "stream_tag" {}
 
 resource "aws_subnet" "elastic" {
   vpc_id = "${var.vpc_id}"
@@ -12,6 +13,7 @@ resource "aws_subnet" "elastic" {
 
   tags {
     Name = "elastic subnet ${var.name}"
+    Stream = "${var.stream_tag}"
   }
 }
 
@@ -29,6 +31,7 @@ resource "aws_route_table" "elastic" {
 
   tags {
     Name = "elastic route table ${var.name}"
+    Stream = "${var.stream_tag}"
   }
 }
 

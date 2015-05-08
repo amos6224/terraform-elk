@@ -10,6 +10,7 @@ variable "key_path" {}
 variable "num_nodes" {}
 variable "environment" {}
 variable "cluster" {}
+variable "stream_tag" {}
 
 resource "aws_instance" "elastic" {
 
@@ -42,6 +43,7 @@ resource "aws_instance" "elastic" {
   tags {
     Name = "elasticsearch-node-${var.name}${count.index+1}"
     es_env = "${var.environment}"
+    Stream = "${var.stream_tag}"
     consul = "agent"
   }
 
