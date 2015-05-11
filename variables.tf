@@ -87,7 +87,7 @@ variable "aws_vpcs" {
 ###################################################################
 variable "aws_subnet_cidr_a" {
 	default = {
-		ap-southeast-2 = "172.16.55.0/25"
+		ap-southeast-2 = "172.16.50.0/25"
 	}
 }
 
@@ -117,7 +117,7 @@ variable "aws_nat_cidr_a" {
 
 variable "aws_subnet_cidr_b" {
 	default = {
-		ap-southeast-2 = "172.16.55.128/25"
+		ap-southeast-2 = "172.16.50.128/25"
 	}
 }
 

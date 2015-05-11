@@ -25,7 +25,6 @@ resource "aws_instance" "elastic" {
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
-
   key_name = "${var.key_name}"
 
   # Elasticsearch nodes
@@ -58,15 +57,17 @@ resource "aws_instance" "elastic" {
     ]
   }
 
+  # TODO move to ansible configuration
   provisioner "file" {
       source = "${path.module}/scripts/upstart.conf"
       destination = "/tmp/upstart.conf"
   }
 
+  # TODO move to ansible configuration
   provisioner "remote-exec" {
     scripts = [
-      "${path.module}/scripts/environment.sh",
-      "${path.module}/scripts/service.sh"
+      "${path.module}/scripts/environment.sh"
+      # "${path.module}/scripts/service.sh"
     ]
   }
 

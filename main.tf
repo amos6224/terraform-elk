@@ -4,34 +4,9 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-# the instances over SSH and elastic ports
-resource "aws_security_group" "elastic" {
-  name = "elasticsearch"
-  description = "Elasticsearch ports with ssh"
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
-
-  # SSH access from anywhere
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # elastic ports from anywhere.. we are using private ips so shouldn't
-  # have people deleting our indexes just yet
-  ingress {
-    from_port = 9200
-    to_port = 9399
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name = "elasticsearch security group"
-    Stream = "${var.stream_tag}"
-  }
-}
+##############################################################################
+# VPC and subnet configuration
+##############################################################################
 
 resource "aws_subnet" "elastic_a" {
   vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
@@ -67,25 +42,6 @@ resource "aws_route_table_association" "elastic_a" {
   route_table_id = "${aws_route_table.elastic_a.id}"
 }
 
-# elastic instances subnet a
-module "elastic_nodes_a" {
-  source = "./elastic"
-
-  name = "a"
-  region = "${var.aws_region}"
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet = "${aws_subnet.elastic_a.id}"
-  instance_type = "${var.aws_instance_type}"
-  elastic_group = "${aws_security_group.elastic.id}"
-  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
-  key_name = "${var.key_name}"
-  key_path = "${var.key_path}"
-  num_nodes = "${var.es_num_nodes_a}"
-  cluster = "${var.es_cluster}"
-  environment = "${var.es_environment}"
-  stream_tag = "${var.stream_tag}"
-}
-
 resource "aws_subnet" "elastic_b" {
   vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
   availability_zone = "${concat(var.aws_region, "b")}"
@@ -115,13 +71,155 @@ resource "aws_route_table" "elastic_b" {
   }
 }
 
-resource "aws_route_table_association" "elastic_b" {
+/*resource "aws_route_table_association" "elastic_b" {
   subnet_id = "${aws_subnet.elastic_b.id}"
   route_table_id = "${aws_route_table.elastic_b.id}"
+}*/
+
+##############################################################################
+# Consul servers
+##############################################################################
+
+resource "aws_security_group" "consul_server" {
+  name = "consul server"
+  description = "Consul server, UI and maintenance."
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  // These are for maintenance
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  // consul ui
+  ingress {
+    from_port = 8500
+    to_port = 8500
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "consul server security group"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_security_group" "consul_agent" {
+  name = "consul agent"
+  description = "Consul agents internal traffic."
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  // These are for internal traffic
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    self = true
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "udp"
+    self = true
+  }
+
+  tags {
+    Name = "consul agent security group"
+    stream = "${var.stream_tag}"
+  }
+}
+
+module "consul_servers_a" {
+  source = "./consul_server"
+
+  name = "a"
+  region = "${var.aws_region}"
+  #fixme
+  ami = "ami-69631053"
+  subnet = "${aws_subnet.elastic_a.id}"
+  #fixme
+  instance_type = "t2.small"
+  security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  #fixme
+  num_nodes = "1"
+  stream_tag = "${var.stream_tag}"
+}
+
+/*module "consul_servers_b" {
+  source = "./consul_server"
+
+  name = "b"
+  region = "${var.aws_region}"
+  #fixme
+  ami = "ami-69631053"
+  subnet = "${aws_subnet.elastic_b.id}"
+  #fixme
+  instance_type = "t2.small"
+  security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  #fixme
+  num_nodes = "1"
+  stream_tag = "${var.stream_tag}"
+}*/
+##############################################################################
+# Elasticsearch
+##############################################################################
+
+resource "aws_security_group" "elastic" {
+  name = "elasticsearch"
+  description = "Elasticsearch ports with ssh"
+  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+
+  # SSH access from anywhere
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # elastic ports from anywhere.. we are using private ips so shouldn't
+  # have people deleting our indexes just yet
+  ingress {
+    from_port = 9200
+    to_port = 9399
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "elasticsearch security group"
+    Stream = "${var.stream_tag}"
+  }
+}
+
+module "elastic_nodes_a" {
+  source = "./elastic"
+
+  name = "a"
+  region = "${var.aws_region}"
+  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  subnet = "${aws_subnet.elastic_a.id}"
+  instance_type = "${var.aws_instance_type}"
+  elastic_group = "${aws_security_group.elastic.id}"
+  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+  key_name = "${var.key_name}"
+  key_path = "${var.key_path}"
+  num_nodes = "${var.es_num_nodes_a}"
+  cluster = "${var.es_cluster}"
+  environment = "${var.es_environment}"
+  stream_tag = "${var.stream_tag}"
 }
 
 # elastic instances subnet a
-module "elastic_nodes_b" {
+/*module "elastic_nodes_b" {
   source = "./elastic"
 
   name = "b"
@@ -137,7 +235,7 @@ module "elastic_nodes_b" {
   cluster = "${var.es_cluster}"
   environment = "${var.es_environment}"
   stream_tag = "${var.stream_tag}"
-}
+}*/
 
 # the instances over SSH and logstash ports
 resource "aws_security_group" "logstash" {
