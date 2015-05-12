@@ -153,8 +153,8 @@ module "consul_servers_a" {
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
-  #fixme
-  num_nodes = "1"
+  #fixme (both az odd number)
+  num_nodes = "2"
   stream_tag = "${var.stream_tag}"
 }
 

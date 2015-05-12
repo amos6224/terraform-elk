@@ -35,7 +35,7 @@ resource "aws_instance" "consul" {
   }
 
   tags {
-    Name = "consul-${var.name}-${count.index+1}"
+    Name = "consul_server_node-${var.name}-${count.index+1}"
     stream = "${var.stream_tag}"
   }
 
