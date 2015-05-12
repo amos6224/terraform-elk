@@ -71,10 +71,10 @@ resource "aws_route_table" "elastic_b" {
   }
 }
 
-/*resource "aws_route_table_association" "elastic_b" {
+resource "aws_route_table_association" "elastic_b" {
   subnet_id = "${aws_subnet.elastic_b.id}"
   route_table_id = "${aws_route_table.elastic_b.id}"
-}*/
+}
 
 ##############################################################################
 # Consul servers
@@ -98,6 +98,13 @@ resource "aws_security_group" "consul_server" {
     from_port = 8500
     to_port = 8500
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -151,7 +158,7 @@ module "consul_servers_a" {
   stream_tag = "${var.stream_tag}"
 }
 
-/*module "consul_servers_b" {
+module "consul_servers_b" {
   source = "./consul_server"
 
   name = "b"
@@ -167,7 +174,8 @@ module "consul_servers_a" {
   #fixme
   num_nodes = "1"
   stream_tag = "${var.stream_tag}"
-}*/
+}
+
 ##############################################################################
 # Elasticsearch
 ##############################################################################
@@ -191,6 +199,13 @@ resource "aws_security_group" "elastic" {
     from_port = 9200
     to_port = 9399
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -219,7 +234,7 @@ module "elastic_nodes_a" {
 }
 
 # elastic instances subnet a
-/*module "elastic_nodes_b" {
+module "elastic_nodes_b" {
   source = "./elastic"
 
   name = "b"
@@ -235,7 +250,7 @@ module "elastic_nodes_a" {
   cluster = "${var.es_cluster}"
   environment = "${var.es_environment}"
   stream_tag = "${var.stream_tag}"
-}*/
+}
 
 # the instances over SSH and logstash ports
 resource "aws_security_group" "logstash" {
@@ -270,6 +285,13 @@ resource "aws_security_group" "logstash" {
     from_port = 5000
     to_port = 5000
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -328,6 +350,13 @@ resource "aws_security_group" "kibana" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
