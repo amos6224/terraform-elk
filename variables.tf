@@ -37,8 +37,93 @@ variable "aws_instance_type" {
 }
 
 ###################################################################
+# Vpc configuration below
+###################################################################
+
+variable "aws_vpc_cidr" {
+  description = "VPC cidr block"
+}
+
+###################################################################
+# Vpc Peering configuration below
+###################################################################
+
+variable "aws_peer_owner_id" {
+  description = "VPC peering owner id"
+}
+
+variable "aws_parent_vpc_id" {
+  description = "Parent VPC id"
+}
+
+variable "aws_parent_vpc_cidr" {
+  description = "Parent VPC id"
+}
+
+###################################################################
+# Subnet configuration below
+###################################################################
+
+variable "aws_subnet_cidr_a" {
+  description = "Subnet A cidr block"
+}
+
+variable "aws_virtual_gateway_a" {
+  default = {
+    ap-southeast-2 = "vgw-7241716f"
+  }
+}
+
+variable "aws_virtual_gateway_cidr_a" {
+  default = {
+    ap-southeast-2 = "10.12.0.0/21"
+  }
+}
+
+variable "aws_nat_a" {
+  default = {
+    ap-southeast-2 = "i-41794b7f"
+  }
+}
+
+variable "aws_nat_cidr_a" {
+  default = {
+    ap-southeast-2 = "0.0.0.0/0"
+  }
+}
+
+variable "aws_subnet_cidr_b" {
+  description = "Subnet A cidr block"
+}
+
+variable "aws_virtual_gateway_b" {
+  default = {
+    ap-southeast-2 = "vgw-7241716f"
+  }
+}
+
+variable "aws_virtual_gateway_cidr_b" {
+  default = {
+    ap-southeast-2 = "10.12.0.0/21"
+  }
+}
+
+variable "aws_nat_b" {
+  default = {
+    ap-southeast-2 = "i-9fd348a1"
+  }
+}
+
+variable "aws_nat_cidr_b" {
+  default = {
+    ap-southeast-2 = "0.0.0.0/0"
+  }
+}
+
+###################################################################
 # Elasticsearch configuration below
 ###################################################################
+
 # if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
 	description = "Elastic cluster name"
@@ -76,88 +161,20 @@ variable "aws_amis" {
   }
 }
 
-variable "aws_vpcs" {
-	default = {
-		ap-southeast-2 = "vpc-f753bd92"
-	}
-}
-
-###################################################################
-# Subnet configuration below
-###################################################################
-variable "aws_subnet_cidr_a" {
-	default = {
-		ap-southeast-2 = "172.16.50.0/25"
-	}
-}
-
-variable "aws_virtual_gateway_a" {
-  default = {
-    ap-southeast-2 = "vgw-7241716f"
-  }
-}
-
-variable "aws_virtual_gateway_cidr_a" {
-  default = {
-    ap-southeast-2 = "10.12.0.0/21"
-  }
-}
-
-variable "aws_nat_a" {
-  default = {
-    ap-southeast-2 = "i-41794b7f"
-  }
-}
-
-variable "aws_nat_cidr_a" {
-  default = {
-    ap-southeast-2 = "0.0.0.0/0"
-  }
-}
-
-variable "aws_subnet_cidr_b" {
-	default = {
-		ap-southeast-2 = "172.16.50.128/25"
-	}
-}
-
-variable "aws_virtual_gateway_b" {
-  default = {
-    ap-southeast-2 = "vgw-7241716f"
-  }
-}
-
-variable "aws_virtual_gateway_cidr_b" {
-  default = {
-    ap-southeast-2 = "10.12.0.0/21"
-  }
-}
-
-variable "aws_nat_b" {
-  default = {
-    ap-southeast-2 = "i-9fd348a1"
-  }
-}
-
-variable "aws_nat_cidr_b" {
-  default = {
-    ap-southeast-2 = "0.0.0.0/0"
-  }
-}
-
 ###################################################################
 # Logstash configuration below
 ###################################################################
+
 variable "aws_logstash_amis" {
 	default = {
 		ap-southeast-2 = "ami-b9007c83"
 	}
 }
 
-
 ###################################################################
 # Kibana configuration below
 ###################################################################
+
 variable "aws_kibana_amis" {
 	default = {
 		ap-southeast-2 = "ami-c9522ef3"

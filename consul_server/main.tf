@@ -39,7 +39,7 @@ resource "aws_instance" "consul" {
     stream = "${var.stream_tag}"
   }
 
-  # redo using ansible
+  /*# redo using ansible
   provisioner "file" {
     source = "${path.module}/scripts/upstart.conf"
     destination = "/tmp/upstart.conf"
@@ -68,5 +68,5 @@ resource "aws_instance" "consul" {
       "${path.module}/scripts/server.sh",
       "${path.module}/scripts/service.sh",
     ]
-  }
+  }*/
 }

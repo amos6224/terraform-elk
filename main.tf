@@ -8,72 +8,94 @@ provider "aws" {
 # VPC and subnet configuration
 ##############################################################################
 
-resource "aws_subnet" "elastic_a" {
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+resource "aws_vpc" "search" {
+  cidr_block = "${var.aws_vpc_cidr}"
+  instance_tenancy = "default"
+
+  tags {
+    Name = "search"
+    Stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_vpc_dhcp_options" "search" {
+  domain_name = "search.internal"
+  domain_name_servers = ["AmazonProvidedDNS"]
+
+  tags {
+    Name = "search internal"
+    Stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_vpc_dhcp_options_association" "dns_search" {
+  vpc_id = "${aws_vpc.search.id}"
+  dhcp_options_id = "${aws_vpc_dhcp_options.search.id}"
+}
+
+##############################################################################
+# VPC Peering
+##############################################################################
+
+resource "aws_vpc_peering_connection" "search_to_parent" {
+  peer_owner_id = "${var.aws_peer_owner_id}"
+  peer_vpc_id = "${var.aws_parent_vpc_id}"
+  vpc_id = "${aws_vpc.search.id}"
+
+  tags {
+    Name = "search to parent peering"
+    Stream = "${var.stream_tag}"
+  }
+}
+
+##############################################################################
+# Subnets
+##############################################################################
+
+resource "aws_subnet" "search_a" {
+  vpc_id = "${aws_vpc.search.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
-  cidr_block = "${lookup(var.aws_subnet_cidr_a, var.aws_region)}"
+  cidr_block = "${var.aws_subnet_cidr_a}"
 
   tags {
-    Name = "SearchA"
+    Name = "A_Search_VPC"
     Stream = "${var.stream_tag}"
   }
 }
 
-resource "aws_route_table" "elastic_a" {
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+resource "aws_route_table" "search" {
+  vpc_id = "${aws_vpc.search.id}"
 
   route {
-    gateway_id = "${lookup(var.aws_virtual_gateway_a, var.aws_region)}"
-    cidr_block = "${lookup(var.aws_virtual_gateway_cidr_a, var.aws_region)}"
-  }
-  route {
-    instance_id = "${lookup(var.aws_nat_a, var.aws_region)}"
-    cidr_block = "${lookup(var.aws_nat_cidr_a, var.aws_region)}"
+    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
+    cidr_block = "${var.aws_parent_vpc_cidr}"
   }
 
   tags {
-    Name = "elastic route table a"
+    Name = "elastic peered route table"
     Stream = "${var.stream_tag}"
   }
 }
 
-resource "aws_route_table_association" "elastic_a" {
-  subnet_id = "${aws_subnet.elastic_a.id}"
-  route_table_id = "${aws_route_table.elastic_a.id}"
+resource "aws_route_table_association" "search_a" {
+  subnet_id = "${aws_subnet.search_a.id}"
+  route_table_id = "${aws_route_table.search.id}"
 }
 
-resource "aws_subnet" "elastic_b" {
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+resource "aws_subnet" "search_b" {
+  vpc_id = "${aws_vpc.search.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
-  cidr_block = "${lookup(var.aws_subnet_cidr_b, var.aws_region)}"
+  cidr_block = "${var.aws_subnet_cidr_b}"
 
   tags {
-    Name = "SearchB"
+    Name = "B_Search_VPC"
     Stream = "${var.stream_tag}"
   }
 }
 
-resource "aws_route_table" "elastic_b" {
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
-
-  route {
-    gateway_id = "${lookup(var.aws_virtual_gateway_b, var.aws_region)}"
-    cidr_block = "${lookup(var.aws_virtual_gateway_cidr_b, var.aws_region)}"
-  }
-  route {
-    instance_id = "${lookup(var.aws_nat_b, var.aws_region)}"
-    cidr_block = "${lookup(var.aws_nat_cidr_b, var.aws_region)}"
-  }
-
-  tags {
-    Name = "elastic route table b"
-    Stream = "${var.stream_tag}"
-  }
-}
-
-resource "aws_route_table_association" "elastic_b" {
-  subnet_id = "${aws_subnet.elastic_b.id}"
-  route_table_id = "${aws_route_table.elastic_b.id}"
+resource "aws_route_table_association" "search_b" {
+  subnet_id = "${aws_subnet.search_b.id}"
+  route_table_id = "${aws_route_table.search.id}"
 }
 
 ##############################################################################
@@ -83,7 +105,7 @@ resource "aws_route_table_association" "elastic_b" {
 resource "aws_security_group" "consul_server" {
   name = "consul server"
   description = "Consul server, UI and maintenance."
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  vpc_id = "${aws_vpc.search.id}"
 
   // These are for maintenance
   ingress {
@@ -117,7 +139,7 @@ resource "aws_security_group" "consul_server" {
 resource "aws_security_group" "consul_agent" {
   name = "consul agent"
   description = "Consul agents internal traffic."
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  vpc_id = "${aws_vpc.search.id}"
 
   // These are for internal traffic
   ingress {
@@ -147,7 +169,7 @@ module "consul_servers_a" {
   region = "${var.aws_region}"
   #fixme
   ami = "ami-69631053"
-  subnet = "${aws_subnet.elastic_a.id}"
+  subnet = "${aws_subnet.search_a.id}"
   #fixme
   instance_type = "t2.small"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
@@ -165,7 +187,7 @@ module "consul_servers_b" {
   region = "${var.aws_region}"
   #fixme
   ami = "ami-69631053"
-  subnet = "${aws_subnet.elastic_b.id}"
+  subnet = "${aws_subnet.search_b.id}"
   #fixme
   instance_type = "t2.small"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
@@ -183,7 +205,7 @@ module "consul_servers_b" {
 resource "aws_security_group" "elastic" {
   name = "elasticsearch"
   description = "Elasticsearch ports with ssh"
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  vpc_id = "${aws_vpc.search.id}"
 
   # SSH access from anywhere
   ingress {
@@ -221,7 +243,7 @@ module "elastic_nodes_a" {
   name = "a"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet = "${aws_subnet.elastic_a.id}"
+  subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_instance_type}"
   elastic_group = "${aws_security_group.elastic.id}"
   security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
@@ -240,7 +262,7 @@ module "elastic_nodes_b" {
   name = "b"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  subnet = "${aws_subnet.elastic_b.id}"
+  subnet = "${aws_subnet.search_b.id}"
   instance_type = "${var.aws_instance_type}"
   elastic_group = "${aws_security_group.elastic.id}"
   security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
@@ -256,7 +278,7 @@ module "elastic_nodes_b" {
 resource "aws_security_group" "logstash" {
   name = "logstash"
   description = "Logstash ports with ssh"
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  vpc_id = "${aws_vpc.search.id}"
 
   # SSH access from anywhere
   ingress {
@@ -308,7 +330,7 @@ module "logstash_nodes" {
   name = "logstash"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
-  subnet = "${aws_subnet.elastic_a.id}"
+  subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_instance_type}"
   security_groups = "${concat(aws_security_group.logstash.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
@@ -336,7 +358,7 @@ resource "aws_route53_record" "logstash" {
 resource "aws_security_group" "kibana" {
   name = "kibana"
   description = "Kibana and nginx ports with ssh"
-  vpc_id = "${lookup(var.aws_vpcs, var.aws_region)}"
+  vpc_id = "${aws_vpc.search.id}"
 
   # SSH access from anywhere
   ingress {
@@ -373,7 +395,7 @@ module "kibana_nodes" {
   name = "kibana"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_kibana_amis, var.aws_region)}"
-  subnet = "${aws_subnet.elastic_a.id}"
+  subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_kibana_instance_type}"
   security_groups = "${concat(aws_security_group.kibana.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
