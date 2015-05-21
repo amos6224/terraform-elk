@@ -46,7 +46,7 @@ resource "aws_instance" "elastic" {
     consul = "agent"
   }
 
-  /*# TODO move to ansible configuration
+  # TODO move to ansible configuration
   provisioner "remote-exec" {
     inline = [
       "echo 'Create environment template'",
@@ -69,6 +69,6 @@ resource "aws_instance" "elastic" {
       "${path.module}/scripts/environment.sh"
       "${path.module}/scripts/service.sh"
     ]
-  }*/
+  }
 
 }
