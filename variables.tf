@@ -1,8 +1,6 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-# private hosted zone https://github.com/hashicorp/terraform/issues/1503
 variable "hosted_zone_name" {}
-#variable "hosted_zone_id" {}
 
 # group our resources
 variable "stream_tag" {
@@ -51,6 +49,10 @@ variable "aws_vpc_cidr" {
   description = "VPC cidr block"
 }
 
+variable "aws_internet_gateway_id" {
+  description = "existing internet gateway id"
+}
+
 ###################################################################
 # Vpc Peering configuration below
 ###################################################################
@@ -71,28 +73,36 @@ variable "aws_parent_vpc_cidr" {
 # Subnet configuration below
 ###################################################################
 
+variable "aws_security_subnet_cidr" {
+  description = "cidr for security subnet"
+}
+
 variable "aws_subnet_cidr_a" {
   description = "Subnet A cidr block"
 }
 
+# deprecated
 variable "aws_virtual_gateway_a" {
   default = {
     ap-southeast-2 = "vgw-7241716f"
   }
 }
 
+# deprecated
 variable "aws_virtual_gateway_cidr_a" {
   default = {
     ap-southeast-2 = "10.12.0.0/21"
   }
 }
 
+# deprecated
 variable "aws_nat_a" {
   default = {
     ap-southeast-2 = "i-41794b7f"
   }
 }
 
+# deprecated
 variable "aws_nat_cidr_a" {
   default = {
     ap-southeast-2 = "0.0.0.0/0"
@@ -103,24 +113,28 @@ variable "aws_subnet_cidr_b" {
   description = "Subnet A cidr block"
 }
 
+# deprecated
 variable "aws_virtual_gateway_b" {
   default = {
     ap-southeast-2 = "vgw-7241716f"
   }
 }
 
+# deprecated
 variable "aws_virtual_gateway_cidr_b" {
   default = {
     ap-southeast-2 = "10.12.0.0/21"
   }
 }
 
+# deprecated
 variable "aws_nat_b" {
   default = {
     ap-southeast-2 = "i-9fd348a1"
   }
 }
 
+# deprecated
 variable "aws_nat_cidr_b" {
   default = {
     ap-southeast-2 = "0.0.0.0/0"

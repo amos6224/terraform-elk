@@ -88,7 +88,7 @@ resource "aws_route_table" "search" {
   }
 
   tags {
-    Name = "elastic peered route table"
+    Name = "search route table"
     Stream = "${var.stream_tag}"
   }
 }
