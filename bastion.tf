@@ -49,6 +49,13 @@ resource "aws_security_group" "bastion" {
     /*]*/
     /*self = false*/
   /*}*/
+
+  egress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 /*TOOD use this when everything else works*/
@@ -56,6 +63,7 @@ resource "aws_security_group" "allow_bastion" {
   name = "allow_bastion_ssh"
   description = "Allow access from bastion host"
   vpc_id = "${var.aws_parent_vpc_id}"
+
   ingress {
     from_port = 0
     to_port = 65535
@@ -80,12 +88,7 @@ resource "aws_route_table" "security" {
 
   route {
     vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
-    cidr_block = "${var.aws_subnet_cidr_a}"
-  }
-
-  route {
-    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
-    cidr_block = "${var.aws_subnet_cidr_b}"
+    cidr_block = "${var.aws_peer_cidr}"
   }
 
   route {
@@ -120,7 +123,7 @@ resource "aws_route_table_association" "security" {
 resource "aws_instance" "bastion" {
 
   connection {
-    user = "ec2-user"
+    user = "ubuntu"
     key_file = "${var.key_path}"
   }
 

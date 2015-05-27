@@ -34,10 +34,11 @@ variable "aws_instance_type" {
   default = "t2.medium"
 }
 
-# unlike our other ami's this is amazon linux
 variable "amazon_nat_ami" {
   default = {
-    ap-southeast-2 = "ami-fd9cecc7"
+    ap-southeast-2 = "ami-69631053"
+    # amazon linux
+    /*ap-southeast-2 = "ami-fd9cecc7"*/
   }
 }
 
@@ -69,6 +70,9 @@ variable "aws_parent_vpc_cidr" {
   description = "Parent VPC id"
 }
 
+variable "aws_peer_cidr" {
+  description = "Peered destination cidr"
+}
 ###################################################################
 # Subnet configuration below
 ###################################################################
@@ -147,25 +151,25 @@ variable "aws_nat_cidr_b" {
 
 # if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
-	description = "Elastic cluster name"
-	default = "elasticsearch"
+  description = "Elastic cluster name"
+  default = "elasticsearch"
 }
 
 variable "es_environment" {
-	description = "Elastic environment tag for auto discovery"
-	default = "elasticsearch"
+  description = "Elastic environment tag for auto discovery"
+  default = "elasticsearch"
 }
 
 # number of nodes in zone a
 variable "es_num_nodes_a" {
-	description = "Elastic nodes in a"
-	default = "1"
+  description = "Elastic nodes in a"
+  default = "1"
 }
 
 # number of nodes in zone b
 variable "es_num_nodes_b" {
-	description = "Elastic nodes in b"
-	default = "1"
+  description = "Elastic nodes in b"
+  default = "1"
 }
 
 # the ability to add additional existing security groups. In our case
