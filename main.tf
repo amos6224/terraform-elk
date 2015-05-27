@@ -192,7 +192,7 @@ module "consul_servers_a" {
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
   #fixme (both az odd number)
-  num_nodes = "2"
+  num_nodes = "1"
   stream_tag = "${var.stream_tag}"
 }
 

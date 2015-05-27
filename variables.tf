@@ -14,7 +14,7 @@ variable "stream_tag" {
 ###################################################################
 variable "key_name" {
   description = "Name of the SSH keypair to use in AWS."
-	default = "elastic"
+  default = "elastic"
 }
 
 variable "key_path" {
@@ -28,12 +28,19 @@ variable "aws_region" {
 
 variable "aws_security_group" {
   description = "Name of security group to use in AWS."
-	default = "elasticsearch"
+  default = "elasticsearch"
 }
 
 variable "aws_instance_type" {
   description = "EC2 instance type."
-	default = "t2.medium"
+  default = "t2.medium"
+}
+
+# unlike our other ami's this is amazon linux
+variable "amazon_nat_ami" {
+  default = {
+    ap-southeast-2 = "ami-fd9cecc7"
+  }
 }
 
 ###################################################################
@@ -157,7 +164,7 @@ variable "additional_security_groups" {
 # See https://github.com/nadnerb/packer-elastic-search
 variable "aws_amis" {
   default = {
-		ap-southeast-2 = "ami-e95123d3"
+    ap-southeast-2 = "ami-e95123d3"
   }
 }
 
@@ -166,9 +173,9 @@ variable "aws_amis" {
 ###################################################################
 
 variable "aws_logstash_amis" {
-	default = {
-		ap-southeast-2 = "ami-b9007c83"
-	}
+  default = {
+    ap-southeast-2 = "ami-b9007c83"
+  }
 }
 
 ###################################################################
@@ -176,11 +183,11 @@ variable "aws_logstash_amis" {
 ###################################################################
 
 variable "aws_kibana_amis" {
-	default = {
-		ap-southeast-2 = "ami-c9522ef3"
-	}
+  default = {
+    ap-southeast-2 = "ami-c9522ef3"
+  }
 }
 
 variable "aws_kibana_instance_type" {
-	default  = "t2.small"
+  default  = "t2.small"
 }
