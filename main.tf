@@ -36,6 +36,20 @@ resource "aws_vpc_dhcp_options_association" "dns_search" {
 }
 
 ##############################################################################
+# Route 53
+##############################################################################
+
+resource "aws_route53_zone" "search" {
+  name = "${var.hosted_zone_name}"
+  vpc_id = "${aws_vpc.search.id}"
+
+  tags {
+    Name = "search internal"
+    Stream = "${var.stream_tag}"
+  }
+}
+
+##############################################################################
 # VPC Peering
 ##############################################################################
 
@@ -341,15 +355,12 @@ module "logstash_nodes" {
   stream_tag = "${var.stream_tag}"
 }
 
-#resource "aws_route53_zone" "search" {
-#  name = "${var.domain_name}"
-#}
-
 # create hosted zone
 # this should be private private
 # zone_id = "${aws_route53_zone.search.zone_id}"
 resource "aws_route53_record" "logstash" {
-   zone_id = "${var.hosted_zone_id}"
+   /*zone_id = "${var.hosted_zone_id}"*/
+   zone_id = "${aws_route53_zone.search.zone_id}"
    name = "logstash"
    type = "A"
    ttl = "30"

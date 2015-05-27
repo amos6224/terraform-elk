@@ -12,24 +12,24 @@ variable "stream_tag" {}
 
 resource "aws_instance" "consul" {
 
-	instance_type = "${var.instance_type}"
+  instance_type = "${var.instance_type}"
 
-	ami = "${var.ami}"
-	subnet_id = "${var.subnet}"
+  ami = "${var.ami}"
+  subnet_id = "${var.subnet}"
 
-	associate_public_ip_address = "false"
+  associate_public_ip_address = "false"
 
-	# Our Security groups
-	security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
+  # Our Security groups
+  security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
   key_name = "${var.key_name}"
 
-	# consul nodes in subnet
-	count = "${var.num_nodes}"
+  # consul nodes in subnet
+  count = "${var.num_nodes}"
 
   connection {
     user = "ubuntu"
     type = "ssh"
-		host = "${self.private_ip}"
+    host = "${self.private_ip}"
     # The path to your keyfile
     key_file = "${var.key_path}"
   }
@@ -39,34 +39,34 @@ resource "aws_instance" "consul" {
     stream = "${var.stream_tag}"
   }
 
-  # redo using ansible
-  provisioner "file" {
-    source = "${path.module}/scripts/upstart.conf"
-    destination = "/tmp/upstart.conf"
-  }
+  /*# redo using ansible*/
+  /*provisioner "file" {*/
+    /*source = "${path.module}/scripts/upstart.conf"*/
+    /*destination = "/tmp/upstart.conf"*/
+  /*}*/
 
-  provisioner "file" {
-    source = "${path.module}/scripts/upstart-join.conf"
-    destination = "/tmp/upstart-join.conf"
-  }
+  /*provisioner "file" {*/
+    /*source = "${path.module}/scripts/upstart-join.conf"*/
+    /*destination = "/tmp/upstart-join.conf"*/
+  /*}*/
 
-  provisioner "file" {
-    source = "${path.module}/scripts/consul.conf"
-    destination = "/tmp/consul.conf"
-  }
+  /*provisioner "file" {*/
+    /*source = "${path.module}/scripts/consul.conf"*/
+    /*destination = "/tmp/consul.conf"*/
+  /*}*/
 
-  provisioner "remote-exec" {
-    inline = [
-      "echo ${var.num_nodes} > /tmp/consul-server-count",
-      "echo ${aws_instance.consul.0.private_dns} > /tmp/consul-server-addr"
-    ]
-  }
+  /*provisioner "remote-exec" {*/
+    /*inline = [*/
+      /*"echo ${var.num_nodes} > /tmp/consul-server-count",*/
+      /*"echo ${aws_instance.consul.0.private_dns} > /tmp/consul-server-addr"*/
+    /*]*/
+  /*}*/
 
-  provisioner "remote-exec" {
-    scripts = [
-      "${path.module}/scripts/install.sh",
-      "${path.module}/scripts/server.sh",
-      "${path.module}/scripts/service.sh",
-    ]
-  }
+  /*provisioner "remote-exec" {*/
+    /*scripts = [*/
+      /*"${path.module}/scripts/install.sh",*/
+      /*"${path.module}/scripts/server.sh",*/
+      /*"${path.module}/scripts/service.sh",*/
+    /*]*/
+  /*}*/
 }

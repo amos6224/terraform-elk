@@ -85,7 +85,7 @@ terraform apply -var-file '~/.aws/default.tfvars'
 A security group is created using terraform that opens up Elasticsearch and ssh ports. We can also add extra pre-existing security groups to our Elasticsearch instances like so:
 
 ```
-terraform destroy -var-file '~/.aws/default.tfvars' -var 'additional_security_groups=sg-xxxx, sg-yyyy'
+terraform plan -var-file '~/.aws/default.tfvars' -var 'additional_security_groups=sg-xxxx, sg-yyyy'
 ```
 
 ## Known issues

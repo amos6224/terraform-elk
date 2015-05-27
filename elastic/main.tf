@@ -46,29 +46,28 @@ resource "aws_instance" "elastic" {
     consul = "agent"
   }
 
-  # TODO move to ansible configuration
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Create environment template'",
-      "echo 'export AWS_REGION=${var.region}' >> /tmp/elastic-environment",
-      "echo 'export ES_ENVIRONMENT=${var.environment}' >> /tmp/elastic-environment",
-      "echo 'export ES_CLUSTER=${var.cluster}' >> /tmp/elastic-environment",
-      "echo 'export ES_GROUP=${var.elastic_group}' >> /tmp/elastic-environment"
-    ]
-  }
+  /*# TODO move to ansible configuration*/
+  /*provisioner "remote-exec" {*/
+    /*inline = [*/
+      /*"echo 'Create environment template'",*/
+      /*"echo 'export AWS_REGION=${var.region}' >> /tmp/elastic-environment",*/
+      /*"echo 'export ES_ENVIRONMENT=${var.environment}' >> /tmp/elastic-environment",*/
+      /*"echo 'export ES_CLUSTER=${var.cluster}' >> /tmp/elastic-environment",*/
+      /*"echo 'export ES_GROUP=${var.elastic_group}' >> /tmp/elastic-environment"*/
+    /*]*/
+  /*}*/
 
-  # TODO move to ansible configuration
-  provisioner "file" {
-      source = "${path.module}/scripts/upstart.conf"
-      destination = "/tmp/upstart.conf"
-  }
+  /*# TODO move to ansible configuration*/
+  /*provisioner "file" {*/
+      /*source = "${path.module}/scripts/upstart.conf"*/
+      /*destination = "/tmp/upstart.conf"*/
+  /*}*/
 
-  # TODO move to ansible configuration
-  provisioner "remote-exec" {
-    scripts = [
-      "${path.module}/scripts/environment.sh"
-      "${path.module}/scripts/service.sh"
-    ]
-  }
-
+  /*# TODO move to ansible configuration*/
+  /*provisioner "remote-exec" {*/
+    /*scripts = [*/
+      /*"${path.module}/scripts/environment.sh"*/
+      /*"${path.module}/scripts/service.sh"*/
+    /*]*/
+  /*}*/
 }
