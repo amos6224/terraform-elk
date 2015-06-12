@@ -88,8 +88,14 @@ A security group is created using terraform that opens up Elasticsearch and ssh 
 terraform plan -var-file '~/.aws/default.tfvars' -var 'additional_security_groups=sg-xxxx, sg-yyyy'
 ```
 
+## TODO
+
+* Finish Bastion config and lock it down
+* Clean up and fix variable conventions
+* Remove old scripts, I am using ansible for configuration (Golang does not support ssh proxying through the bastion
+  anyway)
+
 ## Known issues
 
-* Private hosted zone [issue](https://github.com/hashicorp/terraform/issues/1503)
 * Terraform is not destroying resources correctly which has been made even worse by splitting everything into modules. Currently you need to manually destroy your ec2 instances by hand :( (see [github issue](https://github.com/hashicorp/terraform/issues/1472)). I am currently not using the subnet module which just means I have to destroy the environment twice (fixed in 0.5.1/2).
 * I have noticed that in using a private VPC the `aws_instance` uses `aws_security_group.elastic.id` but in the default VPC it seems to require `aws_security_group.elastic.name`. This may have been resolved in v0.4.x of terraform but I am only using private vpc's now.
