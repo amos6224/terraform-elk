@@ -16,17 +16,26 @@ resource "aws_vpc" "search" {
 
   tags {
     Name = "search"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_internet_gateway" "search" {
+  vpc_id = "${aws_vpc.search.id}"
+
+  tags {
+    Name = "search internet gateway"
+    stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_vpc_dhcp_options" "search" {
-  domain_name = "search.internal"
+  domain_name = "${var.aws_region}.compute.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
 
   tags {
     Name = "search internal"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -45,7 +54,7 @@ resource "aws_route53_zone" "search" {
 
   tags {
     Name = "search internal"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -60,7 +69,7 @@ resource "aws_vpc_peering_connection" "search_to_parent" {
 
   tags {
     Name = "search to parent peering"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -75,7 +84,7 @@ resource "aws_subnet" "search_a" {
 
   tags {
     Name = "A_Search_VPC"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -87,9 +96,19 @@ resource "aws_route_table" "search" {
     cidr_block = "${var.aws_parent_vpc_cidr}"
   }
 
+  route {
+    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
+    cidr_block = "${var.aws_parent_vpc_cidr}"
+  }
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.search.id}"
+  }
+
   tags {
     Name = "search route table"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -105,7 +124,7 @@ resource "aws_subnet" "search_b" {
 
   tags {
     Name = "B_Search_VPC"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -249,7 +268,7 @@ resource "aws_security_group" "elastic" {
 
   tags {
     Name = "elasticsearch security group"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -335,7 +354,7 @@ resource "aws_security_group" "logstash" {
 
   tags {
     Name = "logstash security group"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -397,7 +416,7 @@ resource "aws_security_group" "kibana" {
 
   tags {
     Name = "kibana security group"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 

@@ -13,7 +13,7 @@ resource "aws_subnet" "elastic" {
 
   tags {
     Name = "elastic subnet ${var.name}"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -31,7 +31,7 @@ resource "aws_route_table" "elastic" {
 
   tags {
     Name = "elastic route table ${var.name}"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
   }
 }
 

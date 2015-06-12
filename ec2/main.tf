@@ -39,7 +39,7 @@ resource "aws_instance" "ec2" {
 
   tags {
     Name = "${var.name}_node-${count.index+1}"
-    Stream = "${var.stream_tag}"
+    stream = "${var.stream_tag}"
     consul = "agent"
   }
 

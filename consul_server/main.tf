@@ -39,34 +39,4 @@ resource "aws_instance" "consul" {
     stream = "${var.stream_tag}"
   }
 
-  /*# redo using ansible*/
-  /*provisioner "file" {*/
-    /*source = "${path.module}/scripts/upstart.conf"*/
-    /*destination = "/tmp/upstart.conf"*/
-  /*}*/
-
-  /*provisioner "file" {*/
-    /*source = "${path.module}/scripts/upstart-join.conf"*/
-    /*destination = "/tmp/upstart-join.conf"*/
-  /*}*/
-
-  /*provisioner "file" {*/
-    /*source = "${path.module}/scripts/consul.conf"*/
-    /*destination = "/tmp/consul.conf"*/
-  /*}*/
-
-  /*provisioner "remote-exec" {*/
-    /*inline = [*/
-      /*"echo ${var.num_nodes} > /tmp/consul-server-count",*/
-      /*"echo ${aws_instance.consul.0.private_dns} > /tmp/consul-server-addr"*/
-    /*]*/
-  /*}*/
-
-  /*provisioner "remote-exec" {*/
-    /*scripts = [*/
-      /*"${path.module}/scripts/install.sh",*/
-      /*"${path.module}/scripts/server.sh",*/
-      /*"${path.module}/scripts/service.sh",*/
-    /*]*/
-  /*}*/
 }

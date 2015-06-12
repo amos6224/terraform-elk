@@ -71,13 +71,13 @@ The variables.tf terraform file can be further modified, for example it defaults
 Execute the plan to see if everything works as expected.
 
 ```
-terraform plan -var-file '~/.aws/default.tfvars'
+terraform plan -var-file ~/.aws/default.tfvars -state='environment/development.tfstate'
 ```
 
 If all looks good, lets build our infrastructure!
 
 ```
-terraform apply -var-file '~/.aws/default.tfvars'
+terraform apply -var-file ~/.aws/default.tfvars -state='environment/development.tfstate'
 ```
 
 ### Multiple security groups

@@ -59,19 +59,19 @@ resource "aws_security_group" "bastion" {
 }
 
 /*TOOD use this when everything else works*/
-resource "aws_security_group" "allow_bastion" {
-  name = "allow_bastion_ssh"
-  description = "Allow access from bastion host"
-  vpc_id = "${var.aws_parent_vpc_id}"
+/*resource "aws_security_group" "allow_bastion" {*/
+  /*name = "allow_bastion_ssh"*/
+  /*description = "Allow access from bastion host"*/
+  /*vpc_id = "${var.aws_parent_vpc_id}"*/
 
-  ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.bastion.id}"]
-    self = false
-  }
-}
+  /*ingress {*/
+    /*from_port = 0*/
+    /*to_port = 65535*/
+    /*protocol = "tcp"*/
+    /*security_groups = ["${aws_security_group.bastion.id}"]*/
+    /*self = false*/
+  /*}*/
+/*}*/
 
 # we already have a gateway, otherwise uncomment this and use it in your routes below
 /*resource "aws_internet_gateway" "security" {
@@ -99,7 +99,7 @@ resource "aws_route_table" "security" {
 
   tags {
     Name = "security route table"
-    Stream = "security"
+    stream = "security"
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_subnet" "security" {
 
   tags {
     Name = "security subnet"
-    Stream = "security"
+    stream = "security"
   }
 }
 
@@ -140,7 +140,7 @@ resource "aws_instance" "bastion" {
   source_dest_check = false
   tags = {
     Name = "bastion server"
-    Stream = "security"
+    stream = "security"
   }
 }
 

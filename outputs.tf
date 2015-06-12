@@ -29,3 +29,11 @@ output "kibana private dns" {
 output "kibana private ips" {
   value = "${join(",", module.kibana_nodes.private-ips)}"
 }
+
+output "consul server private dns" {
+  value = "${join(",", module.consul_servers_a.private-dns)}"
+}
+
+output "consul server private ips" {
+  value = "${join(",", module.consul_servers_a.private-ips)}"
+}

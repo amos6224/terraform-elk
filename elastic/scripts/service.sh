@@ -2,4 +2,4 @@
 set -e
 
 echo "Starting Elasticsearch..."
-sudo start elasticsearch
+#sudo start elasticsearch
