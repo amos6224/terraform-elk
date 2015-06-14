@@ -17,7 +17,8 @@ resource "aws_instance" "consul" {
   ami = "${var.ami}"
   subnet_id = "${var.subnet}"
 
-  associate_public_ip_address = "false"
+  # This may be temporary
+  associate_public_ip_address = "true"
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
@@ -37,6 +38,7 @@ resource "aws_instance" "consul" {
   tags {
     Name = "consul_server_node-${var.name}-${count.index+1}"
     stream = "${var.stream_tag}"
+    consul = "server"
   }
 
 }

@@ -209,3 +209,13 @@ variable "aws_kibana_amis" {
 variable "aws_kibana_instance_type" {
   default  = "t2.small"
 }
+
+###################################################################
+# Consul configuration below
+###################################################################
+
+variable "aws_consul_amis" {
+  default = {
+    ap-southeast-2 = "ami-8997ecb3"
+  }
+}

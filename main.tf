@@ -202,8 +202,7 @@ module "consul_servers_a" {
 
   name = "a"
   region = "${var.aws_region}"
-  #fixme
-  ami = "ami-69631053"
+  ami = "${lookup(var.aws_consul_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
   #fixme
   instance_type = "t2.small"
@@ -220,8 +219,7 @@ module "consul_servers_b" {
 
   name = "b"
   region = "${var.aws_region}"
-  #fixme
-  ami = "ami-69631053"
+  ami = "${lookup(var.aws_consul_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_b.id}"
   #fixme
   instance_type = "t2.small"
@@ -281,7 +279,7 @@ module "elastic_nodes_a" {
   subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_instance_type}"
   elastic_group = "${aws_security_group.elastic.id}"
-  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+  security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
   num_nodes = "${var.es_num_nodes_a}"
@@ -300,7 +298,7 @@ module "elastic_nodes_b" {
   subnet = "${aws_subnet.search_b.id}"
   instance_type = "${var.aws_instance_type}"
   elastic_group = "${aws_security_group.elastic.id}"
-  security_groups = "${concat(aws_security_group.elastic.id, ",", var.additional_security_groups)}"
+  security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
   num_nodes = "${var.es_num_nodes_b}"
@@ -367,11 +365,13 @@ module "logstash_nodes" {
   ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_instance_type}"
-  security_groups = "${concat(aws_security_group.logstash.id, ",", var.additional_security_groups)}"
+  security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.logstash.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
+# fixme
   num_nodes = 1
   stream_tag = "${var.stream_tag}"
+  public_ip = "false"
 }
 
 # create hosted zone
@@ -429,9 +429,10 @@ module "kibana_nodes" {
   ami = "${lookup(var.aws_kibana_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_kibana_instance_type}"
-  security_groups = "${concat(aws_security_group.kibana.id, ",", var.additional_security_groups)}"
+  security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.kibana.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
   num_nodes = 1
   stream_tag = "${var.stream_tag}"
+  public_ip = "true"
 }

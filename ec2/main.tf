@@ -8,6 +8,7 @@ variable "key_name" {}
 variable "key_path" {}
 variable "num_nodes" {}
 variable "stream_tag" {}
+variable "public_ip" {}
 
 # needs to be renamed
 resource "aws_instance" "ec2" {
@@ -18,7 +19,7 @@ resource "aws_instance" "ec2" {
   ami = "${var.ami}"
   subnet_id = "${var.subnet}"
 
-  associate_public_ip_address = "false"
+  associate_public_ip_address = "${var.public_ip}"
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
