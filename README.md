@@ -92,6 +92,7 @@ terraform plan -var-file '~/.aws/default.tfvars' -var 'additional_security_group
 
 * Finish Bastion config and lock it down
 * Clean up and fix variable conventions
+* Clean up security groups
 * Remove old scripts, I am using ansible for configuration (Golang does not support ssh proxying through the bastion
   anyway)
 

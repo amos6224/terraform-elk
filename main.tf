@@ -307,7 +307,10 @@ module "elastic_nodes_b" {
   stream_tag = "${var.stream_tag}"
 }
 
-# the instances over SSH and logstash ports
+##############################################################################
+# Logstash
+##############################################################################
+
 resource "aws_security_group" "logstash" {
   name = "logstash"
   description = "Logstash ports with ssh"
@@ -374,19 +377,20 @@ module "logstash_nodes" {
   public_ip = "false"
 }
 
-# create hosted zone
-# this should be private private
-# zone_id = "${aws_route53_zone.search.zone_id}"
+# logstash route53 A record
 resource "aws_route53_record" "logstash" {
-   /*zone_id = "${var.hosted_zone_id}"*/
    zone_id = "${aws_route53_zone.search.zone_id}"
    name = "logstash"
    type = "A"
    ttl = "30"
+   # TODO use elb
    records = ["${join(",", module.logstash_nodes.private-ips)}"]
 }
 
-# the instances over SSH and logstash ports
+##############################################################################
+# Kibana
+##############################################################################
+
 resource "aws_security_group" "kibana" {
   name = "kibana"
   description = "Kibana and nginx ports with ssh"
