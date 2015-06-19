@@ -85,64 +85,8 @@ variable "aws_subnet_cidr_a" {
   description = "Subnet A cidr block"
 }
 
-# deprecated
-variable "aws_virtual_gateway_a" {
-  default = {
-    ap-southeast-2 = "vgw-7241716f"
-  }
-}
-
-# deprecated
-variable "aws_virtual_gateway_cidr_a" {
-  default = {
-    ap-southeast-2 = "10.12.0.0/21"
-  }
-}
-
-# deprecated
-variable "aws_nat_a" {
-  default = {
-    ap-southeast-2 = "i-41794b7f"
-  }
-}
-
-# deprecated
-variable "aws_nat_cidr_a" {
-  default = {
-    ap-southeast-2 = "0.0.0.0/0"
-  }
-}
-
 variable "aws_subnet_cidr_b" {
-  description = "Subnet A cidr block"
-}
-
-# deprecated
-variable "aws_virtual_gateway_b" {
-  default = {
-    ap-southeast-2 = "vgw-7241716f"
-  }
-}
-
-# deprecated
-variable "aws_virtual_gateway_cidr_b" {
-  default = {
-    ap-southeast-2 = "10.12.0.0/21"
-  }
-}
-
-# deprecated
-variable "aws_nat_b" {
-  default = {
-    ap-southeast-2 = "i-9fd348a1"
-  }
-}
-
-# deprecated
-variable "aws_nat_cidr_b" {
-  default = {
-    ap-southeast-2 = "0.0.0.0/0"
-  }
+  description = "Subnet B cidr block"
 }
 
 ###################################################################
@@ -192,7 +136,7 @@ variable "aws_amis" {
 
 variable "aws_logstash_amis" {
   default = {
-    ap-southeast-2 = "ami-b9007c83"
+    ap-southeast-2 = "ami-ad4a3097"
   }
 }
 
