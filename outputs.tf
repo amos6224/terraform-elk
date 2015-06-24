@@ -38,10 +38,30 @@ output "kibana private ips" {
   value = "${join(",", module.kibana_nodes.private-ips)}"
 }
 
-output "consul server private dns" {
+output "kibana public ips" {
+  value = "${join(",", module.kibana_nodes.public-ips)}"
+}
+
+output "consul server private dns a" {
   value = "${join(",", module.consul_servers_a.private-dns)}"
 }
 
-output "consul server private ips" {
+output "consul server private ips a" {
   value = "${join(",", module.consul_servers_a.private-ips)}"
+}
+
+output "consul server public ips a" {
+  value = "${join(",", module.consul_servers_a.public-ips)}"
+}
+
+output "consul server private dns b" {
+  value = "${join(",", module.consul_servers_a.private-dns)}"
+}
+
+output "consul server private ips b" {
+  value = "${join(",", module.consul_servers_a.private-ips)}"
+}
+
+output "consul server public ips b" {
+  value = "${join(",", module.consul_servers_a.public-ips)}"
 }

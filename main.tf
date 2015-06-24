@@ -325,13 +325,14 @@ module "consul_servers_a" {
   name = "a"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_consul_amis, var.aws_region)}"
-  subnet = "${aws_subnet.search_a.id}"
-  #fixme
-  instance_type = "t2.small"
+  # public for the moment
+  subnet = "${aws_subnet.search_public_a.id}"
+  # fixme
+  instance_type = "t2.micro"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
-  #fixme (both az odd number)
+  # fixme (both az with odd number)
   num_nodes = "1"
   stream_tag = "${var.stream_tag}"
 }
@@ -342,13 +343,14 @@ module "consul_servers_b" {
   name = "b"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_consul_amis, var.aws_region)}"
-  subnet = "${aws_subnet.search_b.id}"
+  # public for the moment
+  subnet = "${aws_subnet.search_public_b.id}"
   #fixme
-  instance_type = "t2.small"
+  instance_type = "t2.micro"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
-  #fixme
+  # fixme (both az with odd number)
   num_nodes = "1"
   stream_tag = "${var.stream_tag}"
 }
@@ -552,7 +554,7 @@ module "kibana_nodes" {
   name = "kibana"
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_kibana_amis, var.aws_region)}"
-  subnet = "${aws_subnet.search_a.id}"
+  subnet = "${aws_subnet.search_public_a.id}"
   instance_type = "${var.aws_kibana_instance_type}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.kibana.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
