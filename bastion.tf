@@ -123,7 +123,7 @@ resource "aws_route_table_association" "security" {
 resource "aws_instance" "bastion" {
 
   connection {
-    user = "ubuntu"
+    user = "ec2-user"
     key_file = "${var.key_path}"
   }
 

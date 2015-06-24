@@ -1,3 +1,4 @@
+### MANDATORY ###
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "hosted_zone_name" {}
@@ -15,6 +16,7 @@ variable "key_name" {
   default = "elastic"
 }
 
+### MANDATORY ###
 variable "key_path" {
   description = "Path to the private portion of the SSH key specified."
 }
@@ -29,6 +31,7 @@ variable "aws_security_group" {
   default = "elasticsearch"
 }
 
+# ELASTIC SEARCH INSTANCE TYPE TODO RENAME
 variable "aws_instance_type" {
   description = "EC2 instance type."
   default = "t2.medium"
@@ -36,9 +39,7 @@ variable "aws_instance_type" {
 
 variable "amazon_nat_ami" {
   default = {
-    ap-southeast-2 = "ami-69631053"
-    # amazon linux
-    /*ap-southeast-2 = "ami-fd9cecc7"*/
+    ap-southeast-2 = "ami-e7ee9edd"
   }
 }
 
@@ -58,50 +59,67 @@ variable "aws_internet_gateway_id" {
 # Vpc Peering configuration below
 ###################################################################
 
+### MANDATORY ###
 variable "aws_peer_owner_id" {
   description = "VPC peering owner id"
 }
 
+### MANDATORY ###
 variable "aws_parent_vpc_id" {
   description = "Parent VPC id"
 }
 
+### MANDATORY ###
 variable "aws_parent_vpc_cidr" {
   description = "Parent VPC id"
 }
 
+### MANDATORY ###
 variable "aws_peer_cidr" {
   description = "Peered destination cidr"
 }
+
 ###################################################################
 # Subnet configuration below
 ###################################################################
 
+### MANDATORY ###
 variable "aws_security_subnet_cidr" {
   description = "cidr for security subnet"
 }
 
+### MANDATORY ###
 variable "aws_subnet_cidr_a" {
   description = "Subnet A cidr block"
 }
 
+### MANDATORY ###
+variable "aws_subnet_public_cidr_a" {
+  description = "Subnet A public cidr block"
+}
+
+### MANDATORY ###
 variable "aws_subnet_cidr_b" {
   description = "Subnet B cidr block"
 }
 
+### MANDATORY ###
+variable "aws_subnet_public_cidr_b" {
+  description = "Subnet B public cidr block"
+}
 ###################################################################
 # Elasticsearch configuration below
 ###################################################################
 
+### MANDATORY ###
 # if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
   description = "Elastic cluster name"
-  default = "elasticsearch"
 }
 
+### MANDATORY ###
 variable "es_environment" {
   description = "Elastic environment tag for auto discovery"
-  default = "elasticsearch"
 }
 
 # number of nodes in zone a

@@ -74,27 +74,11 @@ resource "aws_vpc_peering_connection" "search_to_parent" {
 }
 
 ##############################################################################
-# Subnets
+# Public Subnets
 ##############################################################################
 
-resource "aws_subnet" "search_a" {
+resource "aws_route_table" "search_public" {
   vpc_id = "${aws_vpc.search.id}"
-  availability_zone = "${concat(var.aws_region, "a")}"
-  cidr_block = "${var.aws_subnet_cidr_a}"
-
-  tags {
-    Name = "A_Search_VPC"
-    stream = "${var.stream_tag}"
-  }
-}
-
-resource "aws_route_table" "search" {
-  vpc_id = "${aws_vpc.search.id}"
-
-  route {
-    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
-    cidr_block = "${var.aws_parent_vpc_cidr}"
-  }
 
   route {
     vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
@@ -107,7 +91,145 @@ resource "aws_route_table" "search" {
   }
 
   tags {
-    Name = "search route table"
+    Name = "search public route table"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_subnet" "search_public_a" {
+  vpc_id = "${aws_vpc.search.id}"
+  availability_zone = "${concat(var.aws_region, "a")}"
+  cidr_block = "${var.aws_subnet_public_cidr_a}"
+
+  tags {
+    Name = "A_SearchPub_VPC"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_route_table_association" "search_public_a" {
+  subnet_id = "${aws_subnet.search_public_a.id}"
+  route_table_id = "${aws_route_table.search_public.id}"
+}
+
+resource "aws_subnet" "search_public_b" {
+  vpc_id = "${aws_vpc.search.id}"
+  availability_zone = "${concat(var.aws_region, "b")}"
+  cidr_block = "${var.aws_subnet_public_cidr_b}"
+
+  tags {
+    Name = "B_SearchPub_VPC"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_route_table_association" "search_public_b" {
+  subnet_id = "${aws_subnet.search_public_b.id}"
+  route_table_id = "${aws_route_table.search_public.id}"
+}
+
+##############################################################################
+# NAT Boxes
+##############################################################################
+
+resource "aws_security_group" "nat" {
+  name = "nat search"
+  description = "NAT search security group"
+  vpc_id = "${aws_vpc.search.id}"
+
+  // These are for maintenance
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = ["${var.aws_vpc_cidr}"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "nat search security group"
+    stream = "${var.stream_tag}"
+  }
+}
+
+# Nat box
+resource "aws_instance" "nat_a" {
+
+  instance_type = "t2.micro"
+
+  # Lookup the correct AMI based on the region we specified
+  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
+
+  subnet_id = "${aws_subnet.search_public_a.id}"
+  associate_public_ip_address = "true"
+  security_groups = ["${aws_security_group.nat.id}"]
+  key_name = "${var.key_name}"
+  count = "1"
+
+  connection {
+    # The default username for our AMI
+    user = "ec2-user"
+    type = "ssh"
+    host = "${self.private_ip}"
+    # The path to your keyfile
+    key_file = "${var.key_path}"
+  }
+
+  tags {
+    Name = "NAT_search-a"
+    stream = "${var.stream_tag}"
+  }
+
+}
+
+/*resource "aws_eip" "nat_a" {*/
+    /*instance = "${aws_instance.nat_a.id}"*/
+    /*vpc = true*/
+/*}*/
+
+##############################################################################
+# Private subnets
+##############################################################################
+
+resource "aws_route_table" "search" {
+  vpc_id = "${aws_vpc.search.id}"
+
+  route {
+    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
+    cidr_block = "${var.aws_parent_vpc_cidr}"
+  }
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    instance_id = "${aws_instance.nat_a.id}"
+  }
+
+  tags {
+    Name = "search private route table"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_subnet" "search_a" {
+  vpc_id = "${aws_vpc.search.id}"
+  availability_zone = "${concat(var.aws_region, "a")}"
+  cidr_block = "${var.aws_subnet_cidr_a}"
+
+  tags {
+    Name = "A_Search_VPC"
     stream = "${var.stream_tag}"
   }
 }
@@ -252,7 +374,7 @@ resource "aws_security_group" "elastic" {
   # have people deleting our indexes just yet
   ingress {
     from_port = 9200
-    to_port = 9399
+    to_port = 9400
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -267,6 +389,7 @@ resource "aws_security_group" "elastic" {
   tags {
     Name = "elasticsearch security group"
     stream = "${var.stream_tag}"
+    cluster = "${var.es_cluster}"
   }
 }
 
@@ -278,7 +401,6 @@ module "elastic_nodes_a" {
   ami = "${lookup(var.aws_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
   instance_type = "${var.aws_instance_type}"
-  elastic_group = "${aws_security_group.elastic.id}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
@@ -297,7 +419,6 @@ module "elastic_nodes_b" {
   ami = "${lookup(var.aws_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_b.id}"
   instance_type = "${var.aws_instance_type}"
-  elastic_group = "${aws_security_group.elastic.id}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"

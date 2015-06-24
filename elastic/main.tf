@@ -3,7 +3,6 @@ variable "region" {}
 variable "instance_type" {}
 variable "ami" {}
 variable "subnet" {}
-variable "elastic_group" {}
 variable "security_groups" {}
 variable "key_name" {}
 variable "key_path" {}
@@ -41,7 +40,9 @@ resource "aws_instance" "elastic" {
 
   tags {
     Name = "elasticsearch_node-${var.name}-${count.index+1}"
+    # change to use cluster
     es_env = "${var.environment}"
+    cluster = "${var.cluster}"
     stream = "${var.stream_tag}"
     consul = "agent"
   }

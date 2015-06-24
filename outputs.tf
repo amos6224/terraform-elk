@@ -1,3 +1,11 @@
+output "public nat a" {
+  value = "${aws_instance.nat_a.public_ip}"
+}
+
+output "private nat a" {
+  value = "${aws_instance.nat_a.private_ip}"
+}
+
 output "elasticsearch private dns a" {
   value = "${join(",", module.elastic_nodes_a.private-dns)}"
 }

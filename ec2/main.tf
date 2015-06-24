@@ -10,7 +10,6 @@ variable "num_nodes" {}
 variable "stream_tag" {}
 variable "public_ip" {}
 
-# needs to be renamed
 resource "aws_instance" "ec2" {
 
   instance_type = "${var.instance_type}"
@@ -26,7 +25,7 @@ resource "aws_instance" "ec2" {
 
   key_name = "${var.key_name}"
 
-  # Logstash nodes
+  # number of nodes
   count = "${var.num_nodes}"
 
   connection {
