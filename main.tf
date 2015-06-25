@@ -138,12 +138,12 @@ resource "aws_security_group" "nat" {
   vpc_id = "${aws_vpc.search.id}"
 
   // These are for maintenance
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  /*ingress {*/
+    /*from_port = 22*/
+    /*to_port = 22*/
+    /*protocol = "tcp"*/
+    /*cidr_blocks = ["0.0.0.0/0"]*/
+  /*}*/
 
   ingress {
     from_port = 0
@@ -395,14 +395,15 @@ resource "aws_security_group" "elastic" {
   }
 }
 
+# elastic instances subnet a
 module "elastic_nodes_a" {
   source = "./elastic"
 
   name = "a"
   region = "${var.aws_region}"
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  ami = "${lookup(var.aws_elasticsearch_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
-  instance_type = "${var.aws_instance_type}"
+  instance_type = "${var.aws_elasticsearch_instance_type}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
@@ -412,15 +413,15 @@ module "elastic_nodes_a" {
   stream_tag = "${var.stream_tag}"
 }
 
-# elastic instances subnet a
+# elastic instances subnet b
 module "elastic_nodes_b" {
   source = "./elastic"
 
   name = "b"
   region = "${var.aws_region}"
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  ami = "${lookup(var.aws_elasticsearch_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_b.id}"
-  instance_type = "${var.aws_instance_type}"
+  instance_type = "${var.aws_elasticsearch_instance_type}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.elastic.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"
@@ -490,7 +491,7 @@ module "logstash_nodes" {
   region = "${var.aws_region}"
   ami = "${lookup(var.aws_logstash_amis, var.aws_region)}"
   subnet = "${aws_subnet.search_a.id}"
-  instance_type = "${var.aws_instance_type}"
+  instance_type = "${var.aws_logstash_instance_type}"
   security_groups = "${concat(aws_security_group.consul_agent.id, ",", aws_security_group.logstash.id, ",", var.additional_security_groups)}"
   key_name = "${var.key_name}"
   key_path = "${var.key_path}"

@@ -18,38 +18,6 @@ resource "aws_security_group" "bastion" {
     self = false
   }
 
-  # Consul
-  ingress = {
-    from_port = 8500
-    to_port = 8500
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    /*cidr_blocks = [ "${var.allowed_network}" ]*/
-    self = false
-  }
-
-  # Web
-  ingress = {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    /*cidr_blocks = [ "${var.allowed_network}" ]*/
-    self = false
-  }
-
-  # NAT
-  /*ingress {*/
-    /*from_port = 0*/
-    /*to_port = 65535*/
-    /*protocol = "tcp"*/
-    /*cidr_blocks = [*/
-      /*"${aws_subnet.public.cidr_block}",*/
-      /*"${aws_subnet.private.cidr_block}"*/
-    /*]*/
-    /*self = false*/
-  /*}*/
-
   egress {
     from_port = 22
     to_port = 22
@@ -88,9 +56,10 @@ resource "aws_route_table" "security" {
 
   route {
     vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
-    cidr_block = "${var.aws_peer_cidr}"
+    cidr_block = "${var.aws_vpc_cidr}"
   }
 
+# we want to change this to remove this to only be accessible from our network
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${var.aws_internet_gateway_id}"

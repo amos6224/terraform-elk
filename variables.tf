@@ -31,12 +31,6 @@ variable "aws_security_group" {
   default = "elasticsearch"
 }
 
-# ELASTIC SEARCH INSTANCE TYPE TODO RENAME
-variable "aws_instance_type" {
-  description = "EC2 instance type."
-  default = "t2.medium"
-}
-
 variable "amazon_nat_ami" {
   default = {
     ap-southeast-2 = "ami-e7ee9edd"
@@ -47,10 +41,13 @@ variable "amazon_nat_ami" {
 # Vpc configuration below
 ###################################################################
 
+### MANDATORY ###
 variable "aws_vpc_cidr" {
   description = "VPC cidr block"
 }
 
+### MANDATORY ###
+# I am currently using this until moving into VPC with a VPN connection
 variable "aws_internet_gateway_id" {
   description = "existing internet gateway id"
 }
@@ -72,11 +69,6 @@ variable "aws_parent_vpc_id" {
 ### MANDATORY ###
 variable "aws_parent_vpc_cidr" {
   description = "Parent VPC id"
-}
-
-### MANDATORY ###
-variable "aws_peer_cidr" {
-  description = "Peered destination cidr"
 }
 
 ###################################################################
@@ -111,6 +103,19 @@ variable "aws_subnet_public_cidr_b" {
 # Elasticsearch configuration below
 ###################################################################
 
+# Ubuntu Precise 14.04 LTS (x64) built by packer
+# See https://github.com/nadnerb/packer-elastic-search
+variable "aws_elasticsearch_amis" {
+  default = {
+    ap-southeast-2 = "ami-7ff38945"
+  }
+}
+
+variable "aws_elasticsearch_instance_type" {
+  description = "Elasticsearch instance type."
+  default = "t2.medium"
+}
+
 ### MANDATORY ###
 # if you have multiple clusters sharing the same es_environment..?
 variable "es_cluster" {
@@ -140,28 +145,27 @@ variable "additional_security_groups" {
   default = ""
 }
 
-# Ubuntu Precise 14.04 LTS (x64) built by packer
-# See https://github.com/nadnerb/packer-elastic-search
-variable "aws_amis" {
-  default = {
-    ap-southeast-2 = "ami-e95123d3"
-  }
-}
-
 ###################################################################
 # Logstash configuration below
 ###################################################################
 
+# see https://github.com/nadnerb/packer-logstash
 variable "aws_logstash_amis" {
   default = {
     ap-southeast-2 = "ami-ad4a3097"
   }
 }
 
+variable "aws_logstash_instance_type" {
+  description = "Logstash instance type."
+  default = "t2.small"
+}
+
 ###################################################################
 # Kibana configuration below
 ###################################################################
 
+# https://github.com/nadnerb/packer-kibana
 variable "aws_kibana_amis" {
   default = {
     ap-southeast-2 = "ami-c9522ef3"
