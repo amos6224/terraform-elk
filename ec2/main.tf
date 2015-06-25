@@ -7,11 +7,10 @@ variable "security_groups" {}
 variable "key_name" {}
 variable "key_path" {}
 variable "num_nodes" {}
-variable "environment" {}
-variable "cluster" {}
 variable "stream_tag" {}
+variable "public_ip" {}
 
-resource "aws_instance" "elastic" {
+resource "aws_instance" "ec2" {
 
   instance_type = "${var.instance_type}"
 
@@ -19,14 +18,14 @@ resource "aws_instance" "elastic" {
   ami = "${var.ami}"
   subnet_id = "${var.subnet}"
 
-  iam_instance_profile = "elasticSearchNode"
-  associate_public_ip_address = "false"
+  associate_public_ip_address = "${var.public_ip}"
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]
+
   key_name = "${var.key_name}"
 
-  # Elasticsearch nodes
+  # number of nodes
   count = "${var.num_nodes}"
 
   connection {
@@ -39,10 +38,7 @@ resource "aws_instance" "elastic" {
   }
 
   tags {
-    Name = "elasticsearch_node-${var.name}-${count.index+1}"
-    # change to use cluster
-    es_env = "${var.environment}"
-    cluster = "${var.cluster}"
+    Name = "${var.name}_node-${count.index+1}"
     stream = "${var.stream_tag}"
     consul = "agent"
   }
