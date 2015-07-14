@@ -66,6 +66,7 @@ resource "aws_vpc_peering_connection" "search_to_parent" {
   peer_owner_id = "${var.aws_peer_owner_id}"
   peer_vpc_id = "${var.aws_parent_vpc_id}"
   vpc_id = "${aws_vpc.search.id}"
+  auto_accept = true
 
   tags {
     Name = "search to parent peering"
