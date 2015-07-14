@@ -2,6 +2,8 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "hosted_zone_name" {}
+variable "public_hosted_zone_id" {}
+variable "public_hosted_zone_name" {}
 
 # group our resources
 variable "stream_tag" {
