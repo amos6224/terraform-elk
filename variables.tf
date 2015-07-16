@@ -195,3 +195,7 @@ variable "aws_consul_amis" {
     ap-southeast-2 = "ami-8997ecb3"
   }
 }
+
+variable "allowed_cidr_blocks"{
+  default = "0.0.0.0/0"
+}

@@ -6,6 +6,6 @@ output "private-ips" {
   value = "${join(",", aws_instance.consul.*.private_ip)}"
 }
 
-output "public-ips" {
-  value = "${join(",", aws_instance.consul.*.public_ip)}"
+output "ids"{
+  value = "${join(",", aws_instance.consul.*.id)}"
 }

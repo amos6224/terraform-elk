@@ -18,7 +18,7 @@ resource "aws_instance" "consul" {
   subnet_id = "${var.subnet}"
 
   # This may be temporary
-  associate_public_ip_address = "true"
+  associate_public_ip_address = "false"
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]

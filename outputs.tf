@@ -30,16 +30,8 @@ output "consul server private ips a" {
   value = "${module.consul_servers_a.private-ips}"
 }
 
-output "consul server public ips a" {
-  value = "${module.consul_servers_a.public-ips}"
-}
-
 output "consul server private ips b" {
-  value = "${module.consul_servers_a.private-ips}"
-}
-
-output "consul server public ips b" {
-  value = "${module.consul_servers_a.public-ips}"
+  value = "${module.consul_servers_b.private-ips}"
 }
 
 output "bastion server public ips a"{

@@ -57,14 +57,6 @@ resource "aws_route53_zone" "search" {
   }
 }
 
-resource "aws_route53_record" "consul" {
-   zone_id = "${var.public_hosted_zone_id}"
-   name = "consul.${var.public_hosted_zone_name}"
-   type = "A"
-   ttl = "300"
-   records = ["${ module.consul_servers_a.public-ips}"]
-}
-
 ##############################################################################
 # VPC Peering
 ##############################################################################
@@ -144,14 +136,6 @@ resource "aws_security_group" "nat" {
   name = "nat search"
   description = "NAT search security group"
   vpc_id = "${aws_vpc.search.id}"
-
-  // These are for maintenance
-  /*ingress {*/
-    /*from_port = 22*/
-    /*to_port = 22*/
-    /*protocol = "tcp"*/
-    /*cidr_blocks = ["0.0.0.0/0"]*/
-  /*}*/
 
   ingress {
     from_port = 0
@@ -266,7 +250,6 @@ resource "aws_route_table_association" "search_b" {
 ##############################################################################
 # Consul servers
 ##############################################################################
-
 resource "aws_security_group" "consul_server" {
   name = "consul server"
   description = "Consul server, UI and maintenance."
@@ -327,6 +310,31 @@ resource "aws_security_group" "consul_agent" {
   }
 }
 
+resource "aws_security_group" "consul_elb" {
+  name = "consul elb"
+  description = "Elasticsearch ports with ssh"
+  vpc_id = "${aws_vpc.search.id}"
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["${var.allowed_cidr_blocks}"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "consul elb security group"
+    stream = "${var.stream_tag}"
+  }
+}
+
 module "consul_servers_a" {
   source = "./consul_server"
 
@@ -362,6 +370,59 @@ module "consul_servers_b" {
   num_nodes = "1"
   stream_tag = "${var.stream_tag}"
 }
+
+resource "aws_elb" "consul" {
+  name = "consul-elb"
+  security_groups = ["${aws_security_group.consul_elb.id}"]
+  subnets = ["${aws_subnet.search_public_a.id}","${aws_subnet.search_public_b.id}" ]
+
+  listener {
+    instance_port = 8500
+    instance_protocol = "http"
+    lb_port = 80
+    lb_protocol = "http"
+  }
+
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    timeout = 10
+    target = "TCP:8500"
+    interval = 30
+  }
+
+  instances = ["${module.consul_servers_a.ids}", "${module.consul_servers_b.ids}"]
+  cross_zone_load_balancing = true
+  idle_timeout = 400
+  connection_draining = true
+  connection_draining_timeout = 400
+  internal = false
+
+  tags {
+    Name = "consul elb"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_route53_record" "consul" {
+  zone_id = "${var.public_hosted_zone_id}"
+  name = "consul.${var.public_hosted_zone_name}"
+  type = "A"
+
+  alias {
+    name = "${aws_elb.consul.dns_name}"
+    zone_id = "${aws_elb.consul.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+/*resource "aws_route53_record" "consul" {
+   zone_id = "${var.public_hosted_zone_id}"
+   name = "consul.${var.public_hosted_zone_name}"
+   type = "A"
+   ttl = "300"
+   records = ["${ module.consul_servers_a.public-ips}"]
+}*/
 
 ##############################################################################
 # Elasticsearch
