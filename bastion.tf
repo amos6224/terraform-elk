@@ -68,7 +68,7 @@ resource "aws_route_table" "security" {
 
   tags {
     Name = "security route table"
-    stream = "security"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -79,7 +79,7 @@ resource "aws_subnet" "security_a" {
 
   tags {
     Name = "security subnet a"
-    stream = "security"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -90,7 +90,7 @@ resource "aws_subnet" "security_b" {
 
   tags {
     Name = "security subnet b"
-    stream = "security"
+    stream = "${var.stream_tag}"
   }
 }
 
@@ -108,7 +108,7 @@ module "bastion_servers_a" {
   source = "./bastion"
 
   name = "bastion_server_a"
-  stream = "security"
+  stream = "${var.stream_tag}"
   key_path = "${var.key_path}"
   ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
   key_name = "${var.key_name}"
@@ -121,7 +121,7 @@ module "bastion_servers_b" {
   source = "./bastion"
 
   name = "bastion_server_b"
-  stream = "security"
+  stream = "${var.stream_tag}"
   key_path = "${var.key_path}"
   ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
   key_name = "${var.key_name}"

@@ -35,7 +35,10 @@ variable "aws_security_group" {
 
 variable "amazon_nat_ami" {
   default = {
+    eu-central-1 = "ami-46073a5b"
+    ap-southeast-1 = "ami-b49dace6"
     ap-southeast-2 = "ami-e7ee9edd"
+    us-west-1 = "ami-7da94839"
   }
 }
 

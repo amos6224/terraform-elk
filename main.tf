@@ -111,7 +111,7 @@ resource "aws_subnet" "search_public_a" {
   cidr_block = "${var.aws_subnet_public_cidr_a}"
 
   tags {
-    Name = "A_SearchPub_VPC"
+    Name = "SearchPublicA"
     stream = "${var.stream_tag}"
   }
 }
@@ -127,7 +127,7 @@ resource "aws_subnet" "search_public_b" {
   cidr_block = "${var.aws_subnet_public_cidr_b}"
 
   tags {
-    Name = "B_SearchPub_VPC"
+    Name = "SearchPublicB"
     stream = "${var.stream_tag}"
   }
 }
@@ -238,7 +238,7 @@ resource "aws_subnet" "search_a" {
   cidr_block = "${var.aws_subnet_cidr_a}"
 
   tags {
-    Name = "A_Search_VPC"
+    Name = "SearchPrivateA"
     stream = "${var.stream_tag}"
   }
 }
@@ -254,7 +254,7 @@ resource "aws_subnet" "search_b" {
   cidr_block = "${var.aws_subnet_cidr_b}"
 
   tags {
-    Name = "B_Search_VPC"
+    Name = "SearchPrivateB"
     stream = "${var.stream_tag}"
   }
 }
@@ -516,8 +516,10 @@ resource "aws_route53_record" "logstash" {
    name = "logstash"
    type = "A"
    ttl = "30"
+   count = 1
    # TODO use elb
-   records = ["${join(",", module.logstash_nodes.private-ips)}"]
+   #records = ["${join(",", module.logstash_nodes.private-ips)}"]
+   records = ["${module.logstash_nodes.private-ips}"]
 }
 
 ##############################################################################
