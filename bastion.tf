@@ -2,6 +2,13 @@
 ##############################################################################
 # Bastion Server
 ##############################################################################
+resource "aws_route53_record" "bastion" {
+   zone_id = "${var.public_hosted_zone_id}"
+   name = "bastion.${var.public_hosted_zone_name}"
+   type = "A"
+   ttl = "300"
+   records = ["${ module.bastion_servers_a.public-ips}","${ module.bastion_servers_b.public-ips}"]
+}
 
 resource "aws_security_group" "bastion" {
   name = "bastion"
@@ -25,31 +32,6 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-/*TOOD use this when everything else works*/
-/*resource "aws_security_group" "allow_bastion" {*/
-  /*name = "allow_bastion_ssh"*/
-  /*description = "Allow access from bastion host"*/
-  /*vpc_id = "${var.aws_parent_vpc_id}"*/
-
-  /*ingress {*/
-    /*from_port = 0*/
-    /*to_port = 65535*/
-    /*protocol = "tcp"*/
-    /*security_groups = ["${aws_security_group.bastion.id}"]*/
-    /*self = false*/
-  /*}*/
-/*}*/
-
-# we already have a gateway, otherwise uncomment this and use it in your routes below
-/*resource "aws_internet_gateway" "security" {
-    vpc_id = "${var.aws_parent_vpc_id}"
-
-    tags {
-      Name = "security internet gateway"
-      Stream = "security"
-    }
-}*/
 
 resource "aws_route_table" "security" {
   vpc_id = "${var.aws_parent_vpc_id}"
