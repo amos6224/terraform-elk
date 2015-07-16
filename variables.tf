@@ -78,9 +78,14 @@ variable "aws_parent_vpc_cidr" {
 ###################################################################
 
 ### MANDATORY ###
-variable "aws_security_subnet_cidr" {
-  description = "cidr for security subnet"
+variable "aws_security_subnet_cidr_a" {
+  description = "cidr for security subnet a"
 }
+
+variable "aws_security_subnet_cidr_b" {
+  description = "cidr for security subnet b"
+}
+
 
 ### MANDATORY ###
 variable "aws_subnet_cidr_a" {

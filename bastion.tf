@@ -72,47 +72,60 @@ resource "aws_route_table" "security" {
   }
 }
 
-resource "aws_subnet" "security" {
+resource "aws_subnet" "security_a" {
   vpc_id = "${var.aws_parent_vpc_id}"
   availability_zone = "${concat(var.aws_region, "a")}"
-  cidr_block = "${var.aws_security_subnet_cidr}"
+  cidr_block = "${var.aws_security_subnet_cidr_a}"
 
   tags {
-    Name = "security subnet"
+    Name = "security subnet a"
     stream = "security"
   }
 }
 
-resource "aws_route_table_association" "security" {
-  subnet_id = "${aws_subnet.security.id}"
+resource "aws_subnet" "security_b" {
+  vpc_id = "${var.aws_parent_vpc_id}"
+  availability_zone = "${concat(var.aws_region, "b")}"
+  cidr_block = "${var.aws_security_subnet_cidr_b}"
+
+  tags {
+    Name = "security subnet b"
+    stream = "security"
+  }
+}
+
+resource "aws_route_table_association" "security_a" {
+  subnet_id = "${aws_subnet.security_a.id}"
   route_table_id = "${aws_route_table.security.id}"
 }
 
-# using amazon linux instead of ubuntu
-resource "aws_instance" "bastion" {
-
-  connection {
-    user = "ec2-user"
-    key_file = "${var.key_path}"
-  }
-
-  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
-  instance_type = "t2.micro"
-  key_name = "${var.key_name}"
-  security_groups = [
-    "${aws_security_group.bastion.id}"
-  ]
-
-  subnet_id = "${aws_subnet.security.id}"
-  # temporary
-  associate_public_ip_address = true
-  source_dest_check = false
-  tags = {
-    Name = "bastion server"
-    stream = "security"
-  }
+resource "aws_route_table_association" "security_b" {
+  subnet_id = "${aws_subnet.security_b.id}"
+  route_table_id = "${aws_route_table.security.id}"
 }
 
-output "bastion ip" {
-  value = "${aws_instance.bastion.public_ip}"
+module "bastion_servers_a" {
+  source = "./bastion"
+
+  name = "bastion_server_a"
+  stream = "security"
+  key_path = "${var.key_path}"
+  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
+  key_name = "${var.key_name}"
+  security_groups = "${aws_security_group.bastion.id}"
+  subnet_security_id = "${aws_subnet.security_a.id}"
+  instance_type = "t2.micro"
+}
+
+module "bastion_servers_b" {
+  source = "./bastion"
+
+  name = "bastion_server_b"
+  stream = "security"
+  key_path = "${var.key_path}"
+  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
+  key_name = "${var.key_name}"
+  security_groups = "${aws_security_group.bastion.id}"
+  subnet_security_id = "${aws_subnet.security_b.id}"
+  instance_type = "t2.micro"
 }

@@ -65,3 +65,7 @@ output "consul server private ips b" {
 output "consul server public ips b" {
   value = "${join(",", module.consul_servers_a.public-ips)}"
 }
+
+output "bastion server public ips a"{
+  value = "${join(",", module.bastion_servers_a.public-ips)}"
+}

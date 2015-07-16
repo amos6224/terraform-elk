@@ -53,7 +53,8 @@ aws_vpc_cidr="<ip range>"
 aws_peer_owner_id="<aws user id>"
 aws_parent_vpc_id="<parent vpc-id>"
 aws_parent_vpc_cidr="172.31.0.0/16"
-aws_security_subnet_cidr="172.31.250.0/25"
+aws_security_subnet_cidr_a="172.31.250.0/25"
+aws_security_subnet_cidr_b="172.31.250.128/25"
 # bastion, when on private network this is not necessary
 aws_internet_gateway_id="<a gateway id, see bastion.tf to create your own>"
 
