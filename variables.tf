@@ -88,7 +88,7 @@ variable "aws_security_subnet_cidr_b" {
 }
 
 variable "aws_nat_subnet_cidr"{
-  description="Nat subnet"
+  description="Nat subnet for security group"
 }
 
 
