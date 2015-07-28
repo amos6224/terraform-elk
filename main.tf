@@ -105,11 +105,6 @@ resource "aws_subnet" "search_public_a" {
   }
 }
 
-resource "aws_route_table_association" "search_public_a" {
-  subnet_id = "${aws_subnet.search_public_a.id}"
-  route_table_id = "${aws_route_table.search_public.id}"
-}
-
 resource "aws_subnet" "search_public_b" {
   vpc_id = "${aws_vpc.search.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
@@ -119,6 +114,11 @@ resource "aws_subnet" "search_public_b" {
     Name = "SearchPublicB"
     stream = "${var.stream_tag}"
   }
+}
+
+resource "aws_route_table_association" "search_public_a" {
+  subnet_id = "${aws_subnet.search_public_a.id}"
+  route_table_id = "${aws_route_table.search_public.id}"
 }
 
 resource "aws_route_table_association" "search_public_b" {
@@ -139,7 +139,7 @@ resource "aws_security_group" "nat" {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
-    cidr_blocks = ["${var.aws_vpc_cidr}"]
+    cidr_blocks = ["${var.aws_nat_subnet_cidr}"]
   }
 
   egress {
@@ -169,6 +169,8 @@ resource "aws_instance" "nat_a" {
   key_name = "${var.key_name}"
   count = "1"
 
+  source_dest_check = false
+
   connection {
     # The default username for our AMI
     user = "ec2-user"
@@ -182,19 +184,43 @@ resource "aws_instance" "nat_a" {
     Name = "NAT_search-a"
     stream = "${var.stream_tag}"
   }
-
 }
 
-/*resource "aws_eip" "nat_a" {*/
-    /*instance = "${aws_instance.nat_a.id}"*/
-    /*vpc = true*/
-/*}*/
+resource "aws_instance" "nat_b" {
+
+  instance_type = "t2.micro"
+
+  # Lookup the correct AMI based on the region we specified
+  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
+
+  subnet_id = "${aws_subnet.search_public_b.id}"
+  associate_public_ip_address = "true"
+  security_groups = ["${aws_security_group.nat.id}"]
+  key_name = "${var.key_name}"
+  count = "1"
+
+  source_dest_check = false
+
+  connection {
+    # The default username for our AMI
+    user = "ec2-user"
+    type = "ssh"
+    host = "${self.private_ip}"
+    # The path to your keyfile
+    key_file = "${var.key_path}"
+  }
+
+  tags {
+    Name = "NAT_search-b"
+    stream = "${var.stream_tag}"
+  }
+}
 
 ##############################################################################
 # Private subnets
 ##############################################################################
 
-resource "aws_route_table" "search" {
+resource "aws_route_table" "search_a" {
   vpc_id = "${aws_vpc.search.id}"
 
   route {
@@ -208,7 +234,26 @@ resource "aws_route_table" "search" {
   }
 
   tags {
-    Name = "search private route table"
+    Name = "search private route table a"
+    stream = "${var.stream_tag}"
+  }
+}
+
+resource "aws_route_table" "search_b" {
+  vpc_id = "${aws_vpc.search.id}"
+
+  route {
+    vpc_peering_connection_id = "${aws_vpc_peering_connection.search_to_parent.id}"
+    cidr_block = "${var.aws_parent_vpc_cidr}"
+  }
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    instance_id = "${aws_instance.nat_b.id}"
+  }
+
+  tags {
+    Name = "search private route table b"
     stream = "${var.stream_tag}"
   }
 }
@@ -224,11 +269,6 @@ resource "aws_subnet" "search_a" {
   }
 }
 
-resource "aws_route_table_association" "search_a" {
-  subnet_id = "${aws_subnet.search_a.id}"
-  route_table_id = "${aws_route_table.search.id}"
-}
-
 resource "aws_subnet" "search_b" {
   vpc_id = "${aws_vpc.search.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
@@ -240,9 +280,14 @@ resource "aws_subnet" "search_b" {
   }
 }
 
+resource "aws_route_table_association" "search_a" {
+  subnet_id = "${aws_subnet.search_a.id}"
+  route_table_id = "${aws_route_table.search_a.id}"
+}
+
 resource "aws_route_table_association" "search_b" {
   subnet_id = "${aws_subnet.search_b.id}"
-  route_table_id = "${aws_route_table.search.id}"
+  route_table_id = "${aws_route_table.search_b.id}"
 }
 
 ##############################################################################
@@ -413,14 +458,6 @@ resource "aws_route53_record" "consul" {
     evaluate_target_health = true
   }
 }
-
-/*resource "aws_route53_record" "consul" {
-   zone_id = "${var.public_hosted_zone_id}"
-   name = "consul.${var.public_hosted_zone_name}"
-   type = "A"
-   ttl = "300"
-   records = ["${ module.consul_servers_a.public-ips}"]
-}*/
 
 ##############################################################################
 # Elasticsearch

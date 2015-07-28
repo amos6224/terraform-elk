@@ -87,6 +87,10 @@ variable "aws_security_subnet_cidr_b" {
   description = "cidr for security subnet b"
 }
 
+variable "aws_nat_subnet_cidr"{
+  description="Nat subnet"
+}
+
 
 ### MANDATORY ###
 variable "aws_subnet_cidr_a" {
