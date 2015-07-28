@@ -5,10 +5,6 @@
 #
 #   sudo apt-get install awscli
 #
-# tfvars need to be located in:
-#
-#   $CONFIG_LOCATION/$APP_NAME
-#
 # $CONFIG_LOCATION/.aws.$ENVIRONMENT needs to contain the following:
 #
 #   export AWS_ACCESS_KEY_ID=AKEY
@@ -17,8 +13,11 @@
 #   BUCKET=s3-bucket-name
 
 CONFIG_FILE=".terraform.cfg"
+TFSTATE="terraform.tfstate"
 ENVIRONMENTS=(dc0 dc2)
-APP_NAME=elk
+COMMANDS=(apply destroy plan refresh)
+SYNC_COMMANDS=(apply destroy refresh)
+APP_NAME=terraform-elk
 HELPARGS=("help" "-help" "--help" "-h" "-?")
 
 ACTION=$1
@@ -27,6 +26,7 @@ ENVIRONMENT=$2
 function help {
   echo "USAGE: ${0} setup <config-location>"
   echo "USAGE: ${0} <action> <environment>"
+  echo "USAGE: ${0} upload <environment>"
   echo ""
   echo -n "Valid environments are: "
   local i
@@ -45,8 +45,8 @@ function contains_element () {
   return 1
 }
 
-function check_config_file() {
-  if [ ! -f $CONFIG_FILE ]; then
+function check_file_exists() {
+  if [ ! -f $1 ]; then
     return 1
   fi
   return 0
@@ -80,11 +80,12 @@ fi
 
 # Do we need to setup
 if [ "$1" == "setup" ]; then
+  echo "Setting config location ${2}"
   echo "CONFIG_LOCATION=${2}" > $CONFIG_FILE
   exit 0
 fi
 
-# Validate the desired role.
+# Validate the environment.
 contains_element "$2" "${ENVIRONMENTS[@]}"
 if [ $? -ne 0 ]; then
   echo "ERROR: $3 is not a valid environment"
@@ -92,7 +93,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # check we have been setup
-check_config_file
+check_file_exists $CONFIG_FILE
 if [ $? -ne 0 ]; then
   echo "ERROR: Please run setup with a config location"
   help
@@ -107,13 +108,37 @@ if [ $? -ne 0 ]; then
   help
 fi
 
+check_file_exists $CONFIG_LOCATION/.aws.$ENVIRONMENT
+if [ $? -ne 0 ]; then
+  echo "ERROR: Config [$CONFIG_LOCATION/.aws.$ENVIRONMENT] does not exist"
+  echo ""
+  help
+fi
 source $CONFIG_LOCATION/.aws.$ENVIRONMENT
 
 # Pre-flight check is good, let's continue.
 
-BUCKET_KEY="${APP_NAME}/tfstate/${ENVIRONMENT}.tfstate"
-TFVARS="${CONFIG_LOCATION}/${APP_NAME}/${ENVIRONMENT}.tfvars"
+BUCKET_KEY="${APP_NAME}/tfstate/${ENVIRONMENT}"
 
+# Are we uploading
+if [ "$1" == "upload" ]; then
+  echo "Syncing state to S3"
+  aws s3 sync --region=$REGION --exclude="*" --include="*.tfstate" ./tfstate/${ENVIRONMENT}/ "s3://${BUCKET}/${BUCKET_KEY}"
+
+  exit 0
+fi
+
+# Validate the environment.
+contains_element "$1" "${COMMANDS[@]}"
+if [ $? -ne 0 ]; then
+  echo "ERROR: $3 is not a supported command"
+  echo ""
+  echo "supported commands are (apply destroy refresh plan)"
+  echo ""
+  exit 1
+fi
+
+TFVARS="${CONFIG_LOCATION}/${APP_NAME}/${ENVIRONMENT}.tfvars"
 echo ""
 echo "Using variables: $TFVARS"
 echo ""
@@ -121,15 +146,18 @@ echo ""
 # Bail on errors.
 set -e
 
-# Nab the latest tfstate.
-aws s3 sync --region=$REGION --exclude="*" --include="terraform.tfstate" "s3://${BUCKET}/${BUCKET_KEY}" ./
+#make sure the environment dirs exist
+mkdir -p tfstate/${ENVIRONMENT}
 
-TERRAFORM_COMMAND="terraform $ACTION -var-file ${TFVARS}"
+# Nab the latest tfstate.
+aws s3 sync --region=$REGION --exclude="*" --include="*.tfstate" "s3://${BUCKET}/${BUCKET_KEY}" ./tfstate/${ENVIRONMENT}/
+
+TERRAFORM_COMMAND="terraform $ACTION -var-file ${TFVARS} -state=./tfstate/${ENVIRONMENT}/terraform.tfstate"
 
 # Run TF; if this errors out we need to keep going.
 set +e
 
-echo $TERRAFORM_COMMAND
+#echo $TERRAFORM_COMMAND
 echo ""
 
 $TERRAFORM_COMMAND
@@ -138,6 +166,10 @@ EXIT_CODE=$?
 set -e
 
 # Upload tfstate to S3.
-aws s3 sync --region=$REGION --exclude="*" --include="terraform.tfstate" ./ "s3://${BUCKET}/${BUCKET_KEY}"
+contains_element "$1" "${SYNC_COMMANDS[@]}"
+if [ $? -eq 0 ]; then
+  echo "Syncing state to S3"
+  aws s3 sync --region=$REGION --exclude="*" --include="*.tfstate" ./tfstate/${ENVIRONMENT}/ "s3://${BUCKET}/${BUCKET_KEY}"
+fi
 
 exit $EXIT_CODE
