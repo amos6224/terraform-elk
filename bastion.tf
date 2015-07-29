@@ -31,6 +31,11 @@ resource "aws_security_group" "bastion" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "bastion"
+    stream = "${var.stream_tag}"
+  }
 }
 
 resource "aws_route_table" "security" {
